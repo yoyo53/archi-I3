@@ -1,0 +1,17 @@
+package database.service.dbservice;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+
+@SpringBootApplication
+public class DbserviceApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(DbserviceApplication.class, args);
+
+	}
+
+}
