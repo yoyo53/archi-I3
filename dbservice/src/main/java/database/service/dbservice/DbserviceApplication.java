@@ -1,17 +1,25 @@
 package database.service.dbservice;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.context.properties.ConfigurationProperties;
+
+import io.github.cdimascio.dotenv.Dotenv;
 
 @SpringBootApplication
 public class DbserviceApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(DbserviceApplication.class, args);
+        // Charger le fichier .env
+        Dotenv dotenv = Dotenv.configure()
+                              .directory("./") // Indique l'emplacement du .env
+                              .load();
 
-	}
+        // Charger les variables d'environnement dans le système
+        dotenv.entries().forEach(entry -> 
+            System.setProperty(entry.getKey(), entry.getValue())
+        );
+
+        SpringApplication.run(DbserviceApplication.class, args);
+    }
 
 }
