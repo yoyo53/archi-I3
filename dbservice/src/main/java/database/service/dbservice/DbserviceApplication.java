@@ -12,6 +12,7 @@ public class DbserviceApplication {
         // Charger le fichier .env
         Dotenv dotenv = Dotenv.configure()
                               .directory("./") // Indique l'emplacement du .env
+                              .ignoreIfMissing()
                               .load();
 
         // Charger les variables d'environnement dans le système
