@@ -41,3 +41,22 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+
+  user-service:
+    container_name: user-service
+    depends_on:
+      kafka-service:
+        condition: service_healthy
+    build: userservice
+    ports:
+      - "8082:8082"
+    env_file:
+      - userservice/.env
+    environment:
+      - SERVER_PORT=8082
+      - SPRING_KAFKA_URL=kafka-service:9092
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "8082"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
