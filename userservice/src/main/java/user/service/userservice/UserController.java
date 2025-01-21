@@ -3,23 +3,21 @@ package user.service.userservice;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import user.service.userservice.UserRepository;
 
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
 
-    private final KafkaProducer kafkaProducer;
+    private final UserRepository userRepository;
 
-    @Value("${spring.kafka.topic}")
-    private String topic;
-
-    public UserController(KafkaProducer kafkaProducer) {
-        this.kafkaProducer = kafkaProducer;
+    public UserController(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 
     @PostMapping
-    public ResponseEntity<String> createUser(@RequestBody UserDTO userDTO) {
-        kafkaProducer.sendMessage(topic, userDTO);
-        return ResponseEntity.ok("User sent to Kafka successfully!");
+    public ResponseEntity<String> createUser(@RequestBody User user) {
+        userRepository.save(user);
+        return ResponseEntity.ok("User created successfully");
     }
 }

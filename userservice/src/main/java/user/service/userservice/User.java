@@ -1,4 +1,4 @@
-package database.service.dbservice;
+package user.service.userservice;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -14,7 +14,6 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @JsonIgnore
     private Long id;
 
     private String name;

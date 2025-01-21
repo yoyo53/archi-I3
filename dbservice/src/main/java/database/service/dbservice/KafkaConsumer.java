@@ -12,26 +12,12 @@ public class KafkaConsumer {
 
     private static Logger logger = LoggerFactory.getLogger(KafkaConsumer.class);
 
-    private final UserRepository userRepository;
-
-    public KafkaConsumer(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public KafkaConsumer() {
+        
     }
 
     @KafkaListener(topics = "${spring.kafka.topic}", groupId = "db-service")
-    public void consume(User user) {
-        //logger.warn("Consumed message: " + message);
-
-        /*try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            User user = objectMapper.readValue(message, User.class);
-            logger.warn("User: " + user);
-            userRepository.save(user);
-        } catch (Exception e) {
-            logger.error("Error parsing message: " + message, e);
-        }*/
-
-        userRepository.save(user);
+    public void consume(String message) {
 
     }
 }
