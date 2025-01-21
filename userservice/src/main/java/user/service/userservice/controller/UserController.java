@@ -28,7 +28,7 @@ public class UserController {
         }
     }
 
-    @PostMapping("/login")
+    @GetMapping("/login")
     public ResponseEntity<String> loginUser(@RequestBody User user) {
         String result = userService.loginUser(user);
         if (result.startsWith("Login successful")) {
