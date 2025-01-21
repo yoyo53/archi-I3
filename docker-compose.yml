@@ -40,8 +40,29 @@ services:
       - SERVER_PORT=8081
       - SPRING_KAFKA_URL=kafka-service:9092
       - LOGGING_LEVEL_ROOT=WARN
+      - LOGGING_LEVEL_ROOT=WARN
     healthcheck:
       test: ["CMD", "nc", "-z", "localhost", "8081"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  payment-service:
+    container_name: payment-service
+    depends_on:
+      kafka-service:
+        condition: service_healthy
+    build: paymentservice
+    ports:
+      - "8085:8085"
+    env_file:
+      - paymentservice/.env
+    environment:
+      - SERVER_PORT=8085
+      - SPRING_KAFKA_URL=kafka-service:9092
+      - LOGGING_LEVEL_ROOT=WARN
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "8085"]
       interval: 10s
       timeout: 5s
       retries: 5
