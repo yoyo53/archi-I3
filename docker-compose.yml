@@ -22,25 +22,6 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    
-  db-service:
-    container_name: db-service
-    depends_on:
-      kafka-service:
-        condition: service_healthy
-    build: dbservice
-    ports:
-      - "8081:8081"
-    env_file:
-      - dbservice/.env
-    environment:
-      - SERVER_PORT=8081
-      - SPRING_KAFKA_URL=kafka-service:9092
-    healthcheck:
-      test: ["CMD", "nc", "-z", "localhost", "8081"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
 
   user-service:
     container_name: user-service
@@ -57,6 +38,25 @@ services:
       - SPRING_KAFKA_URL=kafka-service:9092
     healthcheck:
       test: ["CMD", "nc", "-z", "localhost", "8082"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  payment-service:
+    container_name: payment-service
+    depends_on:
+      kafka-service:
+        condition: service_healthy
+    build: paymentservice
+    ports:
+      - "8085:8085"
+    env_file:
+      - paymentservice/.env
+    environment:
+      - SERVER_PORT=8085
+      - SPRING_KAFKA_URL=kafka-service:9092
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "8085"]
       interval: 10s
       timeout: 5s
       retries: 5

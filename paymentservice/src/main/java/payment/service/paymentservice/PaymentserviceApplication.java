@@ -1,4 +1,4 @@
-package database.service.dbservice;
+package payment.service.paymentservice;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -6,10 +6,11 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import io.github.cdimascio.dotenv.Dotenv;
 
 @SpringBootApplication
-public class DbserviceApplication {
+public class PaymentserviceApplication {
 
 	public static void main(String[] args) {
-        // Charger le fichier .env
+
+		// Charger le fichier .env
         Dotenv dotenv = Dotenv.configure()
                               .directory("./") // Indique l'emplacement du .env
                               .ignoreIfMissing()
@@ -19,8 +20,8 @@ public class DbserviceApplication {
         dotenv.entries().forEach(entry -> 
             System.setProperty(entry.getKey(), entry.getValue())
         );
-
-        SpringApplication.run(DbserviceApplication.class, args);
-    }
+		
+		SpringApplication.run(PaymentserviceApplication.class, args);
+	}
 
 }
