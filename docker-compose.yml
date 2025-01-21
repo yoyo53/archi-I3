@@ -86,3 +86,22 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+
+  wallet-service:
+    container_name: wallet-service
+    depends_on:
+      kafka-service:
+        condition: service_healthy
+    build: walletservice
+    ports:
+      - "8084:8084"
+    env_file:
+      - walletservice/.env
+    environment:
+      - SERVER_PORT=8084
+      - SPRING_KAFKA_URL=kafka-service:9092
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "8084"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
