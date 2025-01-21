@@ -1,4 +1,4 @@
-package user.service.userservice.config;
+package certificate.service.certificateservice.config;
 
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.producer.ProducerConfig;
