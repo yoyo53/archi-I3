@@ -60,3 +60,23 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+
+
+  investment-service:
+    container_name: investment-service
+    depends_on:
+      kafka-service:
+        condition: service_healthy
+    build: investmentservice
+    ports:
+      - "8083:8083"
+    env_file:
+      - investmentservice/.env
+    environment:
+      - SERVER_PORT=8083
+      - SPRING_KAFKA_URL=kafka-service:9092
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "8083"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
