@@ -6,10 +6,10 @@ FROM base AS build
 
 COPY . .
 
-RUN ./gradlew build
+RUN ./gradlew bootJar
 
 FROM base AS final
 
-COPY --from=build /app/build/libs/*-SNAPSHOT.jar main.jar
+COPY --from=build /app/build/libs/*.jar main.jar
 
 CMD ["java", "-jar", "main.jar"]

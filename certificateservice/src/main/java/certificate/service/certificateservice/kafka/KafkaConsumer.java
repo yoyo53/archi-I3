@@ -1,4 +1,4 @@
-package user.service.userservice;
+package certificate.service.certificateservice.kafka;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +14,7 @@ public class KafkaConsumer {
         
     }
 
-    @KafkaListener(topics = "${spring.kafka.topic}", groupId = "db-service")
+    @KafkaListener(topics = "${spring.kafka.topic}", groupId = "${spring.kafka.consumer.group-id}")
     public void consume(String message) {
 
     }

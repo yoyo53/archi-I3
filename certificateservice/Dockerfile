@@ -12,4 +12,4 @@ FROM base AS final
 
 COPY --from=build /app/build/libs/*.jar main.jar
 
-CMD ["java", "-jar", "main.jar"]
+CMD ["java", "-jar", "/app/main.jar"]

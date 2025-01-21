@@ -1,6 +1,4 @@
-package user.service.userservice;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
+package user.service.userservice.model;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -16,17 +14,14 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String name;
-
     private String email;
+
+    private String password;
+
+    private String role;
 
     // Constructeurs, getters, setters
     public User() {}
-
-    public User(String name, String email) {
-        this.name = name;
-        this.email = email;
-    }
 
     public Long getId() {
         return id;
@@ -36,14 +31,6 @@ public class User {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public String getEmail() {
         return email;
     }
@@ -51,4 +38,17 @@ public class User {
     public void setEmail(String email) {
         this.email = email;
     }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
+
 }
