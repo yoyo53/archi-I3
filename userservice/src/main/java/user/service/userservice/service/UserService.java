@@ -42,7 +42,7 @@ public class UserService {
             event.put(EVENT_TYPE, "UserCreated");
             ObjectNode payload = new ObjectMapper().createObjectNode();
             payload.put("id", savedUser.getId());
-            event.put(PAYLOAD, EVENT_TYPE);
+            event.put(PAYLOAD, payload);
 
             kafkaProducer.sendMessage(topic, event);
             return "User created successfully";
@@ -50,13 +50,9 @@ public class UserService {
     }
 
     public String loginUser(User user) {
-        if (userRepository.existsById(user.getId())) {
-            User userFromDb = userRepository.findById(user.getId()).get();
-            if (userFromDb.getPassword().equals(user.getPassword())) {
-                return "Login successful" + userFromDb.getId();
-            } else {
-                return "Invalid password";
-            }
+        if (userRepository.existsByEmailAndPassword(user.getEmail(), user.getPassword()) != null) {
+            User userFromDb = userRepository.findByEmailAndPassword(user.getEmail(), user.getPassword());
+            return "Login successful : " + userFromDb.getId();
         } else {
             return "User does not exist";
         }
