@@ -1,7 +1,5 @@
 package user.service.userservice;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -20,6 +18,10 @@ public class User {
 
     private String email;
 
+    private String password;
+
+    private String role;
+
     // Constructeurs, getters, setters
     public User() {}
 
@@ -32,23 +34,20 @@ public class User {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public String getName() {
         return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public String getEmail() {
         return email;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public String getPassword() {
+        return password;
     }
+
+    public String getRole() {
+        return role;
+    }
+
 }

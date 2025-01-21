@@ -42,7 +42,7 @@ public class KafkaConfig {
         return new KafkaTemplate<>(producerFactory());
     }
 
-        @Bean
+    @Bean
     public ConsumerFactory<String, String> consumerFactory() {
         Map<String, Object> config = new HashMap<>();
         config.put(org.apache.kafka.clients.consumer.ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
