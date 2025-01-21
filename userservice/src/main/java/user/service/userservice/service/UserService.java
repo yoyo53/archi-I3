@@ -22,6 +22,7 @@ public class UserService {
 
     private final String EVENT_TYPE = "EventType";
     private final String PAYLOAD = "Payload";
+
     @Autowired
     public UserService(UserRepository userRepository, KafkaProducer kafkaProducer) {
         this.userRepository = userRepository;

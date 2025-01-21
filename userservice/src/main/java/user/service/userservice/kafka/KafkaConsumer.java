@@ -14,7 +14,7 @@ public class KafkaConsumer {
         
     }
 
-    @KafkaListener(topics = "${spring.kafka.topic}", groupId = "db-service")
+    @KafkaListener(topics = "${spring.kafka.topic}", groupId = "${spring.kafka.consumer.group-id}")
     public void consume(String message) {
     }
 }
