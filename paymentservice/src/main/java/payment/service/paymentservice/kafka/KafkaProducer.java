@@ -1,7 +1,9 @@
-package payment.service.paymentservice;
+package payment.service.paymentservice.kafka;
 
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
+
+import payment.service.paymentservice.model.Payment;
 
 @Service
 public class KafkaProducer {
