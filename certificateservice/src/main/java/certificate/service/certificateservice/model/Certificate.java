@@ -18,13 +18,7 @@ public class Certificate {
 
     private Long investmentId;
 
-    // Constructeurs, getters, setters
     public Certificate() {}
-
-    public Certificate(Long userId, Long investmentId) {
-        this.userId = userId;
-        this.investmentId = investmentId;
-    }
 
     public Long getId() {
         return id;
