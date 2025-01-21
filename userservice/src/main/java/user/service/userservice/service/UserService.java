@@ -1,6 +1,7 @@
 package user.service.userservice.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -13,9 +14,14 @@ import user.service.userservice.repository.UserRepository;
 @Service
 public class UserService {
 
+    @Value("${spring.kafka.topic}")
+    private String topic;
+
     private final UserRepository userRepository;
     private final KafkaProducer kafkaProducer;
 
+    private final String EVENT_TYPE = "EventType";
+    private final String PAYLOAD = "Payload";
     @Autowired
     public UserService(UserRepository userRepository, KafkaProducer kafkaProducer) {
         this.userRepository = userRepository;
@@ -23,16 +29,22 @@ public class UserService {
     }
 
     public String createUser(User user) {
-        if (userRepository.existsById(user.getId())) {
+        if (userRepository.findByEmail(user.getEmail()) != null) {
             return "User already exists";
         } else if (!user.getRole().equals("Investor") && !user.getRole().equals("Agent")) {
             return "Role must be either Investor or Agent";
         } else {
-            userRepository.save(user);
-            //Json Object
-            ObjectNode objectNode = new ObjectMapper().createObjectNode();
+            User savedUser = userRepository.save(user);
+            
 
-            kafkaProducer.sendMessage("user-topic", "User created: " + user.getId());
+            //Json Object
+            ObjectNode event = new ObjectMapper().createObjectNode();
+            event.put(EVENT_TYPE, "UserCreated");
+            ObjectNode payload = new ObjectMapper().createObjectNode();
+            payload.put("id", savedUser.getId());
+            event.put(PAYLOAD, EVENT_TYPE);
+
+            kafkaProducer.sendMessage(topic, event);
             return "User created successfully";
         }
     }

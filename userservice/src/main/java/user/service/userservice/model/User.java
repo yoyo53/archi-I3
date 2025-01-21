@@ -1,4 +1,4 @@
-package user.service.userservice;
+package user.service.userservice.model;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -14,8 +14,6 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String name;
-
     private String email;
 
     private String password;
@@ -25,21 +23,20 @@ public class User {
     // Constructeurs, getters, setters
     public User() {}
 
-    public User(String name, String email) {
-        this.name = name;
-        this.email = email;
-    }
-
     public Long getId() {
         return id;
     }
 
-    public String getName() {
-        return name;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getEmail() {
         return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public String getPassword() {
@@ -48,6 +45,10 @@ public class User {
 
     public String getRole() {
         return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
     }
 
 }
