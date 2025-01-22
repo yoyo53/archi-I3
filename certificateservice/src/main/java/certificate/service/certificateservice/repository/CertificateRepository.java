@@ -7,4 +7,9 @@ import certificate.service.certificateservice.model.Certificate;
 
 @Repository
 public interface CertificateRepository extends JpaRepository<Certificate, Long> {
+    public Certificate findByInvestmentId(Long investmentId);
+
+    Iterable<Certificate> findByInvestment_UserId(Long userId);
+
+    Iterable<Certificate> findByInvestment_PropertyId(Long propertyId);
 }
