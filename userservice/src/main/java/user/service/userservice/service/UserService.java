@@ -22,6 +22,9 @@ public class UserService {
     private final KafkaProducer kafkaProducer;
 
     private final String USER_CREATED_EVENT = "UserCreated";
+    private final String EVENT_TYPE = "EventType";
+    private final String PAYLOAD = "Payload";
+    private final String USER_ID = "id";
 
     @Autowired
     public UserService(UserRepository userRepository, KafkaProducer kafkaProducer) {
@@ -37,21 +40,16 @@ public class UserService {
         if (!user.getRole().equals("Investor") && !user.getRole().equals("Agent")) {
             return "Role must be either Investor or Agent";
         }
-    
+
         User savedUser = userRepository.save(user);
-    
-        // Prépare l'événement UserCreatedEvent
-        UserCreatedEvent.Payload payload = new UserCreatedEvent.Payload(
-            savedUser.getId(),
-            savedUser.getEmail(),
-            savedUser.getRole()
-        );
-    
-        UserCreatedEvent event = new UserCreatedEvent(USER_CREATED_EVENT, payload);
-    
-        // Envoie l'événement à Kafka
-        kafkaProducer.sendMessage(topic, new ObjectMapper().convertValue(event, ObjectNode.class));
-    
+
+        ObjectNode event = new ObjectMapper().createObjectNode();
+        event.put(EVENT_TYPE, USER_CREATED_EVENT);
+        ObjectNode payload = new ObjectMapper().createObjectNode();
+        payload.put(USER_ID, savedUser.getId());
+        event.set(PAYLOAD, payload);
+
+        kafkaProducer.sendMessage(topic, event);
         return "User created successfully";
     }
 

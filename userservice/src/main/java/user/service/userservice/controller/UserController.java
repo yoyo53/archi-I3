@@ -1,5 +1,7 @@
 package user.service.userservice.controller;
 
+import java.net.URI;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -8,7 +10,7 @@ import user.service.userservice.model.User;
 import user.service.userservice.service.UserService;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/api/users")
 public class UserController {
 
     private final UserService userService;
@@ -22,7 +24,7 @@ public class UserController {
     public ResponseEntity<String> createUser(@RequestBody User user) {
         String result = userService.createUser(user);
         if (result.equals("User created successfully")) {
-            return ResponseEntity.ok(result);
+            return ResponseEntity.created(null).body(result);
         } else {
             return ResponseEntity.badRequest().body(result);
         }
