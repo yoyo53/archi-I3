@@ -18,6 +18,7 @@ public class Certificate {
 
     private Long investmentId;
 
+    // Constructeurs, getters, setters
     public Certificate() {}
 
     public Long getId() {

@@ -14,6 +14,7 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    // Constructeurs, getters, setters
     public User() {}
 
     public Long getId() {
@@ -23,4 +24,5 @@ public class User {
     public void setId(Long id) {
         this.id = id;
     }
+
 }

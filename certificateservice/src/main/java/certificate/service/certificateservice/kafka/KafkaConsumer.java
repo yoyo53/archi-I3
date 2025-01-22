@@ -16,6 +16,6 @@ public class KafkaConsumer {
 
     @KafkaListener(topics = "${spring.kafka.topic}", groupId = "${spring.kafka.consumer.group-id}")
     public void consume(String message) {
-
+        logger.warn(String.format("#### -> Consumed message -> %s", message));
     }
 }

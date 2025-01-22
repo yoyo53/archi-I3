@@ -4,7 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
-import org.springframework.beans.factory.annotation.Value;
 
 @Service
 public class KafkaConsumer {
@@ -17,6 +16,6 @@ public class KafkaConsumer {
 
     @KafkaListener(topics = "${spring.kafka.topic}", groupId = "${spring.kafka.consumer.group-id}")
     public void consume(String message) {
-
+        logger.warn(String.format("#### -> Consumed message -> %s", message));
     }
 }

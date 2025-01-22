@@ -13,8 +13,6 @@ import org.springframework.kafka.support.serializer.JsonSerializer;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import investment.service.investmentservice.model.Investment;
-
 import java.util.HashMap;
 import java.util.Map;
 

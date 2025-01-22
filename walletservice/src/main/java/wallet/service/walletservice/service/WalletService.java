@@ -22,6 +22,7 @@ public class WalletService {
 
     private final String EVENT_TYPE = "EventType";
     private final String PAYLOAD = "Payload";
+
     @Autowired
     public WalletService(WalletRepository walletRepository, KafkaProducer kafkaProducer) {
         this.walletRepository = walletRepository;

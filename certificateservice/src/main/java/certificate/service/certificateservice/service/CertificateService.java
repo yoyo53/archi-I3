@@ -37,7 +37,7 @@ public class CertificateService {
         event.put(EVENT_TYPE, "CertificateCreated");
         ObjectNode payload = new ObjectMapper().createObjectNode();
         payload.put("id", savedCertificate.getId());
-        event.put(PAYLOAD, payload);
+        event.set(PAYLOAD, payload);
 
         kafkaProducer.sendMessage(topic, event);
         return "Certificate created";

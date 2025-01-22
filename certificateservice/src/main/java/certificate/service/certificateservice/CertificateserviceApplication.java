@@ -8,20 +8,11 @@ import io.github.cdimascio.dotenv.Dotenv;
 @SpringBootApplication
 public class CertificateserviceApplication {
 
-	public static void main(String[] args) {
+    public static void main(String[] args) {
+        Dotenv dotenv = Dotenv.configure().directory("./").ignoreIfMissing().load();
+        dotenv.entries().forEach(entry -> System.setProperty(entry.getKey(), entry.getValue()));
 
-		// Charger le fichier .env
-        Dotenv dotenv = Dotenv.configure()
-                              .directory("./") // Indique l'emplacement du .env
-                              .ignoreIfMissing()
-                              .load();
-
-        // Charger les variables d'environnement dans le système
-        dotenv.entries().forEach(entry -> 
-            System.setProperty(entry.getKey(), entry.getValue())
-        );
-		
-		SpringApplication.run(CertificateserviceApplication.class, args);
-	}
+        SpringApplication.run(CertificateserviceApplication.class, args);
+    }
 
 }

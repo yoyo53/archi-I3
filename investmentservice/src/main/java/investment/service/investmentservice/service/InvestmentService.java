@@ -1,12 +1,11 @@
 package investment.service.investmentservice.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.springframework.beans.factory.annotation.Value;
 
 import investment.service.investmentservice.kafka.KafkaProducer;
 
@@ -33,11 +32,11 @@ public class InvestmentService {
     private final UserRepository userRepository;
     private final PropertyRepository propertyRepository;
 
-
     private final KafkaProducer kafkaProducer;
 
     private final String EVENT_TYPE = "EventType";
     private final String PAYLOAD = "Payload";
+
     @Autowired
     public InvestmentService(InvestmentRepository investmentRepository, UserRepository userRepository, PropertyRepository propertyRepository, KafkaProducer kafkaProducer) {
         this.investmentRepository = investmentRepository;
@@ -55,14 +54,11 @@ public class InvestmentService {
         event.put(EVENT_TYPE, "InvestmentCreated");
         ObjectNode payload = new ObjectMapper().createObjectNode();
         payload.put("id", savedInvestment.getId());
-        event.put(PAYLOAD, payload);
-        // ObjectNode objectNode = new ObjectMapper().createObjectNode();
+        event.set(PAYLOAD, payload);
 
-        // kafkaProducer.sendMessage(topic, objectNode);
         kafkaProducer.sendMessage(topic, event);
         return "Investment created successfully";
     }
-
 
     // User
     public String createUser(User user) {

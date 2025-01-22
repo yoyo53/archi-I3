@@ -40,9 +40,48 @@ services:
       - SERVER_PORT=8081
       - SPRING_KAFKA_URL=kafka-service:9092
       - LOGGING_LEVEL_ROOT=WARN
-      - LOGGING_LEVEL_ROOT=WARN
     healthcheck:
       test: ["CMD", "nc", "-z", "localhost", "8081"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  investment-service:
+    container_name: investment-service
+    depends_on:
+      kafka-service:
+        condition: service_healthy
+    build: investmentservice
+    ports:
+      - "8083:8083"
+    env_file:
+      - investmentservice/.env
+    environment:
+      - SERVER_PORT=8083
+      - SPRING_KAFKA_URL=kafka-service:9092
+      - LOGGING_LEVEL_ROOT=WARN
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "8083"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  wallet-service:
+    container_name: wallet-service
+    depends_on:
+      kafka-service:
+        condition: service_healthy
+    build: walletservice
+    ports:
+      - "8084:8084"
+    env_file:
+      - walletservice/.env
+    environment:
+      - SERVER_PORT=8084
+      - SPRING_KAFKA_URL=kafka-service:9092
+      - LOGGING_LEVEL_ROOT=WARN
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "8084"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -58,6 +97,7 @@ services:
     env_file:
       - paymentservice/.env
     environment:
+      - LOCAL_TIMEZONE=Europe/Paris
       - SERVER_PORT=8085
       - SPRING_KAFKA_URL=kafka-service:9092
       - LOGGING_LEVEL_ROOT=WARN
@@ -83,44 +123,6 @@ services:
       - LOGGING_LEVEL_ROOT=WARN
     healthcheck:
       test: ["CMD", "nc", "-z", "localhost", "8087"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  wallet-service:
-    container_name: wallet-service
-    depends_on:
-      kafka-service:
-        condition: service_healthy
-    build: walletservice
-    ports:
-      - "8084:8084"
-    env_file:
-      - walletservice/.env
-    environment:
-      - SERVER_PORT=8084
-      - SPRING_KAFKA_URL=kafka-service:9092
-    healthcheck:
-      test: ["CMD", "nc", "-z", "localhost", "8084"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  investment-service:
-    container_name: investment-service
-    depends_on:
-      kafka-service:
-        condition: service_healthy
-    build: investmentservice
-    ports:
-      - "8083:8083"
-    env_file:
-      - investmentservice/.env
-    environment:
-      - SERVER_PORT=8083
-      - SPRING_KAFKA_URL=kafka-service:9092
-    healthcheck:
-      test: ["CMD", "nc", "-z", "localhost", "8083"]
       interval: 10s
       timeout: 5s
       retries: 5
