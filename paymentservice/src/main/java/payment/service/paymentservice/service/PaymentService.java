@@ -41,19 +41,29 @@ public class PaymentService {
         this.kafkaProducer = kafkaProducer;
     }
 
-    public Payment createPayment(Payment payment) {
+    public Payment createPayment(Payment payment){
         payment.setDate(getISOdate());
         Payment savedPayment = paymentRepository.save(payment);
 
         //Json Object
         ObjectNode event = new ObjectMapper().createObjectNode();
-        event.put(EVENT_TYPE, "WalletCreated");
+        event.put(EVENT_TYPE, "PaymentCreated");
         ObjectNode payload = new ObjectMapper().createObjectNode();
         payload.put("id", savedPayment.getId());
+        payload.put("userID", savedPayment.getUserID());
+        payload.put("amount", savedPayment.getAmount());
         event.set(PAYLOAD, payload);
 
         kafkaProducer.sendMessage(topic, event);
         return savedPayment;
+    }
+
+    public Iterable<Payment> getPayments(){
+        return paymentRepository.findAll();
+    }
+    
+    public Payment getPaymentById(Long id){
+        return paymentRepository.findById(id).get();
     }
 
     private String getISOdate() {
@@ -64,5 +74,4 @@ public class PaymentService {
         return df.format(new Date());
 
     }
-    
 }

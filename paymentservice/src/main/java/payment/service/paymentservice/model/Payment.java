@@ -18,10 +18,13 @@ public class Payment {
 
     private String date;
 
+    private String status;
+
     private double amount;
 
-    // Constructeurs, getters, setters
-    public Payment() {}
+    public Payment() {
+        this.status = "PENDING";
+    }
 
     public Long getId() {
         return id;
@@ -53,6 +56,13 @@ public class Payment {
 
     public void setUserID(String userID) {
         this.userID = userID;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     
