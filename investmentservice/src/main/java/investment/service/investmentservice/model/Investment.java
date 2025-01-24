@@ -26,21 +26,29 @@ public class Investment {
 
     private Long sharesOwned;
 
-    private Long certificatID;
+    private Long certificatID = null;
 
-    // Constructeurs, getters, setters
+    private Long paymentID = null;
+
+    // Constructeurs
     public Investment() {
     }
 
-    public Investment(Long propertyID, Long userID, Long amountInvested, LocalDate investmentDate, Long sharesOwned, Long certificatID) {
+    public Investment(Long propertyID, Long userID, Long amountInvested) {
+        this.propertyID = propertyID;
+        this.userID = userID;
+        this.amountInvested = amountInvested;
+    }
+
+    public Investment(Long propertyID, Long userID, Long amountInvested, LocalDate investmentDate, Long sharesOwned) {
         this.propertyID = propertyID;
         this.userID = userID;
         this.amountInvested = amountInvested;
         this.investmentDate = investmentDate;
         this.sharesOwned = sharesOwned;
-        this.certificatID = certificatID;
     }
 
+    // Getters et Setters
     public Long getId() {
         return id;
     }
@@ -79,5 +87,29 @@ public class Investment {
 
     public void setInvestmentDate(LocalDate investmentDate) {
         this.investmentDate = investmentDate;
+    }
+
+    public Long getSharesOwned() {
+        return sharesOwned;
+    }
+
+    public void setSharesOwned(Long sharesOwned) {
+        this.sharesOwned = sharesOwned;
+    }
+
+    public Long getCertificatID() {
+        return certificatID;
+    }
+
+    public void setCertificatID(Long certificatID) {
+        this.certificatID = certificatID;
+    }
+
+    public Long getPaymentID() {
+        return paymentID;
+    }
+
+    public void setPaymentID(Long paymentID) {
+        this.paymentID = paymentID;
     }
 }

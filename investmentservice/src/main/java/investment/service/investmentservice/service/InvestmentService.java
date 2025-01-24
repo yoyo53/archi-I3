@@ -1,5 +1,7 @@
 package investment.service.investmentservice.service;
 
+import java.math.BigDecimal;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -21,6 +23,14 @@ import investment.service.investmentservice.repository.UserRepository;
 import investment.service.investmentservice.model.Property;
 import investment.service.investmentservice.repository.PropertyRepository;
 
+// Payment
+import investment.service.investmentservice.model.Payment;
+import investment.service.investmentservice.repository.PaymentRepository;
+
+// Certificat
+import investment.service.investmentservice.model.Certificat;
+import investment.service.investmentservice.repository.CertificatRepository;
+
 @Service
 public class InvestmentService {
 
@@ -31,6 +41,8 @@ public class InvestmentService {
     private final InvestmentRepository investmentRepository;
     private final UserRepository userRepository;
     private final PropertyRepository propertyRepository;
+    private final PaymentRepository paymentRepository;
+    private final CertificatRepository certificatRepository;
 
     private final KafkaProducer kafkaProducer;
 
@@ -38,10 +50,12 @@ public class InvestmentService {
     private final String PAYLOAD = "Payload";
 
     @Autowired
-    public InvestmentService(InvestmentRepository investmentRepository, UserRepository userRepository, PropertyRepository propertyRepository, KafkaProducer kafkaProducer) {
+    public InvestmentService(InvestmentRepository investmentRepository, UserRepository userRepository, PropertyRepository propertyRepository, KafkaProducer kafkaProducer, PaymentRepository paymentRepository, CertificatRepository certificatRepository) {
         this.investmentRepository = investmentRepository;
         this.userRepository = userRepository;
         this.propertyRepository = propertyRepository;
+        this.paymentRepository = paymentRepository;
+        this.certificatRepository = certificatRepository;
         this.kafkaProducer = kafkaProducer;
     }
 
@@ -60,9 +74,35 @@ public class InvestmentService {
         return "Investment created successfully";
     }
 
+    public Boolean canInvest(Long propertyId, Double amount) {
+        if (!propertyExists(propertyId)) {
+            return false; //"Property does not exist";
+        }
+
+        Property property = propertyRepository.findById(propertyId).orElse(null);
+        if (property == null) {
+            return false; //"Property not found";
+        }
+
+        BigDecimal totalInvested = investmentRepository.findTotalInvestedByPropertyID(propertyId);
+        if (totalInvested == null) {
+            totalInvested = BigDecimal.ZERO;
+        }
+
+        if (totalInvested.add(BigDecimal.valueOf(amount)).compareTo(BigDecimal.valueOf(property.getPrice().longValue())) > 0) {
+            return false; //"Investment exceeds property price";
+        }
+
+        return true; //"Investment is possible";
+    }
+
     // User
+    public Boolean userExists(Long userId) {
+        return userRepository.existsById(userId);
+    }
+
     public String createUser(User user) {
-        if (userRepository.existsById(user.getId())) {
+        if (userExists(user.getId())) {
             return "User already exists";
         } else if (!user.getRole().equals("Investor")) {
             return "Role must be either Investor";
@@ -72,14 +112,41 @@ public class InvestmentService {
         }
     }
 
+
+
     // Property
+    public Boolean propertyExists(Long propertyId) {
+        return propertyRepository.existsById(propertyId);
+    }
     public String createProperty(Property property) {
-        if (propertyRepository.existsById(property.getId())) {
+        if (propertyExists(property.getId())) {
             return "Property already exists";
         } else {
             propertyRepository.save(property);
 
             return "Property created successfully";
+        }
+    }
+
+    // Payment
+    public String createPayment(Payment payment) {
+        if (paymentRepository.existsById(payment.getId())) {
+            return "Payment already exists";
+        } else {
+            paymentRepository.save(payment);
+
+            return "Payment created successfully";
+        }
+    }
+
+    // Certificat
+    public String createCertificat(Certificat certificat) {
+        if (certificatRepository.existsById(certificat.getId())) {
+            return "Certificat already exists";
+        } else {
+            certificatRepository.save(certificat);
+
+            return "Certificat created successfully";
         }
     }
 

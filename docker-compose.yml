@@ -26,25 +26,25 @@ services:
       timeout: 5s
       retries: 5
 
-  user-service:
-    container_name: user-service
-    depends_on:
-      kafka-service:
-        condition: service_healthy
-    build: userservice
-    ports:
-      - "8081:8081"
-    env_file:
-      - userservice/.env
-    environment:
-      - SERVER_PORT=8081
-      - SPRING_KAFKA_URL=kafka-service:9092
-      - LOGGING_LEVEL_ROOT=WARN
-    healthcheck:
-      test: ["CMD", "nc", "-z", "localhost", "8081"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+  # user-service:
+  #   container_name: user-service
+  #   depends_on:
+  #     kafka-service:
+  #       condition: service_healthy
+  #   build: userservice
+  #   ports:
+  #     - "8081:8081"
+  #   env_file:
+  #     - userservice/.env
+  #   environment:
+  #     - SERVER_PORT=8081
+  #     - SPRING_KAFKA_URL=kafka-service:9092
+  #     - LOGGING_LEVEL_ROOT=WARN
+  #   healthcheck:
+  #     test: ["CMD", "nc", "-z", "localhost", "8081"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
 
   investment-service:
     container_name: investment-service
@@ -66,64 +66,64 @@ services:
       timeout: 5s
       retries: 5
 
-  wallet-service:
-    container_name: wallet-service
-    depends_on:
-      kafka-service:
-        condition: service_healthy
-    build: walletservice
-    ports:
-      - "8084:8084"
-    env_file:
-      - walletservice/.env
-    environment:
-      - SERVER_PORT=8084
-      - SPRING_KAFKA_URL=kafka-service:9092
-      - LOGGING_LEVEL_ROOT=WARN
-    healthcheck:
-      test: ["CMD", "nc", "-z", "localhost", "8084"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+  # wallet-service:
+  #   container_name: wallet-service
+  #   depends_on:
+  #     kafka-service:
+  #       condition: service_healthy
+  #   build: walletservice
+  #   ports:
+  #     - "8084:8084"
+  #   env_file:
+  #     - walletservice/.env
+  #   environment:
+  #     - SERVER_PORT=8084
+  #     - SPRING_KAFKA_URL=kafka-service:9092
+  #     - LOGGING_LEVEL_ROOT=WARN
+  #   healthcheck:
+  #     test: ["CMD", "nc", "-z", "localhost", "8084"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
 
-  payment-service:
-    container_name: payment-service
-    depends_on:
-      kafka-service:
-        condition: service_healthy
-    build: paymentservice
-    ports:
-      - "8085:8085"
-    env_file:
-      - paymentservice/.env
-    environment:
-      - LOCAL_TIMEZONE=Europe/Paris
-      - SERVER_PORT=8085
-      - SPRING_KAFKA_URL=kafka-service:9092
-      - LOGGING_LEVEL_ROOT=WARN
-    healthcheck:
-      test: ["CMD", "nc", "-z", "localhost", "8085"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+  # payment-service:
+  #   container_name: payment-service
+  #   depends_on:
+  #     kafka-service:
+  #       condition: service_healthy
+  #   build: paymentservice
+  #   ports:
+  #     - "8085:8085"
+  #   env_file:
+  #     - paymentservice/.env
+  #   environment:
+  #     - LOCAL_TIMEZONE=Europe/Paris
+  #     - SERVER_PORT=8085
+  #     - SPRING_KAFKA_URL=kafka-service:9092
+  #     - LOGGING_LEVEL_ROOT=WARN
+  #   healthcheck:
+  #     test: ["CMD", "nc", "-z", "localhost", "8085"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
 
-  certificate-service:
-    container_name: certificate-service
-    depends_on:
-      kafka-service:
-        condition: service_healthy
-    build: certificateservice
-    ports:
-      - "8087:8087"
-    env_file:
-      - certificateservice/.env
-    environment:
-      - LOCAL_TIMEZONE=Europe/Paris
-      - SERVER_PORT=8087
-      - SPRING_KAFKA_URL=kafka-service:9092
-      - LOGGING_LEVEL_ROOT=WARN
-    healthcheck:
-      test: ["CMD", "nc", "-z", "localhost", "8087"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+  # certificate-service:
+  #   container_name: certificate-service
+  #   depends_on:
+  #     kafka-service:
+  #       condition: service_healthy
+  #   build: certificateservice
+  #   ports:
+  #     - "8087:8087"
+  #   env_file:
+  #     - certificateservice/.env
+  #   environment:
+  #     - LOCAL_TIMEZONE=Europe/Paris
+  #     - SERVER_PORT=8087
+  #     - SPRING_KAFKA_URL=kafka-service:9092
+  #     - LOGGING_LEVEL_ROOT=WARN
+  #   healthcheck:
+  #     test: ["CMD", "nc", "-z", "localhost", "8087"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
