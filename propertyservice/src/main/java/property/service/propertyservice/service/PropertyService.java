@@ -5,6 +5,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import property.service.propertyservice.dto.PropertyDTO;
 import property.service.propertyservice.kafka.KafkaProducer;
 import property.service.propertyservice.model.Property;
 import property.service.propertyservice.model.User;
@@ -25,6 +31,9 @@ public class PropertyService {
 
     private final String EVENT_TYPE = "EventType";
     private final String PAYLOAD = "Payload";
+    private final String PROPERTY_CREATED_EVENT = "PropertyCreated";
+    private final String PROPEERTY_DELETED_EVENT = "PropertyDeleted";
+    private final String PROPERTY_UPDATED_EVENT = "PropertyUpdated";
 
     private static final Logger logger = LoggerFactory.getLogger(PropertyService.class);
 
@@ -35,72 +44,141 @@ public class PropertyService {
         this.userRepository = userRepository;
     }
 
-    public Property createProperty (@RequestBody Property property, String userID){
+    public void createProperty (@RequestBody Property property, String userID) throws Exception{
         if(userID == null){
             logger.error("User ID is null");
-            return null;
+            throw new Exception("User ID is null");
         }
-        User user = userRepository.findById(Long.parseLong(userID)).get();
+
+        User user = userRepository.findById(Long.parseLong(userID)).orElse(null);
         if(user == null || !user.getRole().equals("Agent")){
             logger.error("User does not exist or is not an agent");
-            return null;
+            throw new Exception("User does not exist or is not an agent");
         }
-        Property savedProperty = propertyRepository.save(property);
 
-        return savedProperty;
+        if(!property.getStatus().equals("DRAFT")){
+            logger.error("Property status must be DRAFT when creating a new property");
+            throw new Exception("Property status must be DRAFT when creating a new property");
+        }
+
+        Property savedProperty = propertyRepository.save(property);
+        
+        ObjectNode event = new ObjectMapper().createObjectNode();
+        event.put(EVENT_TYPE, PROPERTY_CREATED_EVENT);
+        ObjectNode payload = new ObjectMapper().createObjectNode();
+        payload.put("id", savedProperty.getId());
+        payload.put("name", savedProperty.getName());
+        payload.put("type", savedProperty.getType());
+        payload.put("price", savedProperty.getPrice());
+        payload.put("annualRentalIncomeRate", savedProperty.getAnnualRentalIncomeRate());
+        payload.put("appreciationRate", savedProperty.getAppreciationRate());
+        payload.put("status", savedProperty.getStatus());
+        payload.put("fundingDeadline", savedProperty.getFundingDeadline());
+        payload.put("fundedAmount", savedProperty.getFundedAmount());
+        event.set(PAYLOAD, payload);
+
+        kafkaProducer.sendMessage(topic, event);
     }
 
-    public void deleteProperty(Long id, String userID){
+    public void deleteProperty(@NotNull @Valid Long id, @NotNull @Valid String userID) throws Exception{
         if(userID == null){
             logger.error("User ID is null");
-            return;
+            throw new Exception("User ID is null");
         }
-        User user = userRepository.findById(Long.parseLong(userID)).get();
+        User user = userRepository.findById(Long.parseLong(userID)).orElse(null);
         if(user == null || !user.getRole().equals("Agent")){
             logger.error("User does not exist or is not an agent");
-            return;
+            throw new Exception("User does not exist or is not an agent");
+
         }
         if(propertyRepository.findById(id).isEmpty()){
             logger.error("Property does not exist");
-            return;
+            throw new Exception("Property does not exist");
+
         }
         propertyRepository.deleteById(id);
+
+        ObjectNode event = new ObjectMapper().createObjectNode();
+        event.put(EVENT_TYPE, PROPEERTY_DELETED_EVENT);
+        ObjectNode payload = new ObjectMapper().createObjectNode();
+        payload.put("id", id);
+        event.set(PAYLOAD, payload);
+
+        kafkaProducer.sendMessage(topic, event);
+
+        
     }
 
     public Iterable<Property> getProperties(){
         return propertyRepository.findAll();
     }
     
-    public Property getPropertyById(Long id){
+    public Property getPropertyById(@NotNull @Valid Long id){
         return propertyRepository.findById(id).get();
     }
 
-    public void updateProperty(Long id, Property updatedProperty, String userID){
+    public void updateProperty(@NotNull @Valid Long id, @NotNull @Valid PropertyDTO propertyDTO, @NotNull @Valid String userID) throws Exception{
         if(userID == null){
             logger.error("User ID is null");
-            return;
+            throw new Exception("User ID is null");
         }
-        User user = userRepository.findById(Long.parseLong(userID)).get();
+        User user = userRepository.findById(Long.parseLong(userID)).orElse(null);
         if(user == null || !user.getRole().equals("Agent")){
             logger.error("User does not exist or is not an agent");
-            return;
+            throw new Exception("User does not exist or is not an agent");
         }
         if(propertyRepository.findById(id).isEmpty()){
             logger.error("Property does not exist");
-            return;
+            throw new Exception("Property does not exist");
         }
-        //TODO Check if every field from updatedProperty is valid
-        Property oldProperty = propertyRepository.findById(id).get();
-        oldProperty.setName(updatedProperty.getName());
-        oldProperty.setType(updatedProperty.getType());
-        oldProperty.setPrice(updatedProperty.getPrice());
-        oldProperty.setAnnualRentalIncomeRate(updatedProperty.getAnnualRentalIncomeRate());
-        oldProperty.setAppreciationRate(updatedProperty.getAppreciationRate());
-        oldProperty.setStatus(updatedProperty.getStatus());
-        oldProperty.setFundingDeadline(updatedProperty.getFundingDeadline());
-        oldProperty.setFundedAmount(updatedProperty.getFundedAmount());
-        oldProperty.setInvestors(updatedProperty.getInvestors());
+
+        if(!checkMaximumOpenProperties()){
+            logger.error("Maximum number of open properties reached");
+            throw new Exception("Maximum number of open properties reached");
+        }
+
+        if(!checkPropertyStatus(propertyDTO.getStatus())){
+            logger.error("Invalid property status");
+            throw new Exception("Invalid property status, must be DRAFT, OPENED, FUNDED or CLOSED");
+        }
+
+
+        Property oldProperty = propertyRepository.findById(id).orElse(null);
+        oldProperty.setStatus(propertyDTO.getStatus());
         propertyRepository.save(oldProperty);
+
+        ObjectNode event = new ObjectMapper().createObjectNode();
+        event.put(EVENT_TYPE, PROPERTY_UPDATED_EVENT);
+        ObjectNode payload = new ObjectMapper().createObjectNode();
+        payload.put("id", oldProperty.getId());
+        payload.put("status", oldProperty.getStatus());
+        event.set(PAYLOAD, payload);
+
+        kafkaProducer.sendMessage(topic, event);
+    }
+
+    public Iterable<Property> getOpenProperties(){
+        return propertyRepository.findByStatus("OPEN");
+    }
+
+    private boolean checkMaximumOpenProperties(){
+        int count = 0;
+        for(Property property : propertyRepository.findAll()){
+            if(property.getStatus().equals("OPEN")){
+                count++;
+            }
+        }
+        if(count >= 6){
+            return false;
+        }
+        return true;
+    }
+
+    private boolean checkPropertyStatus(String status){
+        if(status.equals("DRAFT") || status.equals("OPEN") || status.equals("CLOSED")){
+            return true;
+        }
+        return false;
     }
         
 
