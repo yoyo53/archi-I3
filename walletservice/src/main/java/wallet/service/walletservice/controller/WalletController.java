@@ -1,7 +1,6 @@
 package wallet.service.walletservice.controller;
 
 import java.net.URI;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
