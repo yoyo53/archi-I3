@@ -35,7 +35,7 @@ public class InvestmentController {
     }
 
     @PostMapping
-    public ResponseEntity<Investment> zizicacaboudin(@RequestBody InvestmentDTO investmentDTO, @RequestHeader("Authorization") Long userID) {
+    public ResponseEntity<Investment> createInvestment(@RequestBody InvestmentDTO investmentDTO, @RequestHeader("Authorization") Long userID) {
         try {
             System.out.println("Investment Details: ");
             System.out.println("UserID: " + userID);

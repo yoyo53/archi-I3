@@ -38,6 +38,8 @@ import investment.service.investmentservice.repository.CertificatRepository;
 @Service
 public class InvestmentService {
 
+    private static final int INVESTMENT_LIMIT_PER_YEAR = 100000;
+
     @Value("${spring.kafka.topic}")
     private String topic;
 
@@ -65,9 +67,14 @@ public class InvestmentService {
 
     // Investment
     public Investment createInvestment(@NotNull @Valid InvestmentDTO investmentDTO, @NotNull Long userID) {
-        if (investmentDTO.getAmount() <= 0) {
+        if (investmentDTO.getAmount() <= 500) {
             throw new IllegalArgumentException("Investment amount must be greater than zero");
         }
+        
+        if (investmentRepository.findInvestmentTotalByInvestment_UserId(userID).compareTo(BigDecimal.valueOf(INVESTMENT_LIMIT_PER_YEAR)) > 0) {
+            throw new IllegalArgumentException("Investment amount exceeds maximum limit for this year");
+        }
+
         Property property = propertyRepository.findById(investmentDTO.getPropertyId()).orElseThrow();
         if (!canInvest(property, investmentDTO.getAmount())) {
             throw new IllegalArgumentException("Investment exceeds property price");
@@ -104,7 +111,7 @@ public class InvestmentService {
 
     public Boolean canInvest(@NotNull @Valid Property property, Double amount) {
 
-        BigDecimal totalInvested = investmentRepository.findTotalInvestedByPropertyID(property.getId());
+        BigDecimal totalInvested = investmentRepository.findTotalInvestedByInvestment_PropertyId(property.getId());
         if (totalInvested == null) {
             totalInvested = BigDecimal.ZERO;
         }
