@@ -2,10 +2,14 @@ package investment.service.investmentservice.model;
 
 import java.time.LocalDate;
 
+import jakarta.validation.constraints.NotNull;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
 @Entity
@@ -16,31 +20,48 @@ public class Investment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long propertyID;
+    @ManyToOne
+    @NotNull
+    private Property property;
 
-    private Long userID;
+    @ManyToOne
+    @NotNull
+    private User user;
 
-    private Long amountInvested;
+    @NotNull
+    private Double amountInvested;
 
+    @NotNull
     private LocalDate investmentDate;
 
+    @NotNull
     private Long sharesOwned;
 
-    private Long certificatID;
+    @OneToOne
+    private Certificat certificat;
 
-    // Constructeurs, getters, setters
+    @OneToOne
+    private Payment payment;
+
+    // Constructeurs
     public Investment() {
     }
 
-    public Investment(Long propertyID, Long userID, Long amountInvested, LocalDate investmentDate, Long sharesOwned, Long certificatID) {
-        this.propertyID = propertyID;
-        this.userID = userID;
+    public Investment(Property property, User user, Double amountInvested) {
+        this.property = property;
+        this.user = user;
+        this.amountInvested = amountInvested;
+    }
+
+    public Investment(Property property, User user, Double amountInvested, LocalDate investmentDate, Long sharesOwned) {
+        this.property = property;
+        this.user = user;
         this.amountInvested = amountInvested;
         this.investmentDate = investmentDate;
         this.sharesOwned = sharesOwned;
-        this.certificatID = certificatID;
     }
 
+    // Getters et Setters
     public Long getId() {
         return id;
     }
@@ -49,27 +70,27 @@ public class Investment {
         this.id = id;
     }
 
-    public Long getPropertyID() {
-        return propertyID;
+    public Property getProperty() {
+        return property;
     }
 
-    public void setPropertyID(Long propertyID) {
-        this.propertyID = propertyID;
+    public void setProperty(Property property) {
+        this.property = property;
     }
 
-    public Long getUserID() {
-        return userID;
+    public User getUser() {
+        return user;
     }
 
-    public void setUserID(Long userID) {
-        this.userID = userID;
+    public void setUser(User user) {
+        this.user = user;
     }
 
-    public Long getAmountInvested() {
+    public Double getAmountInvested() {
         return amountInvested;
     }
 
-    public void setAmountInvested(Long amountInvested) {
+    public void setAmountInvested(Double amountInvested) {
         this.amountInvested = amountInvested;
     }
 
@@ -79,5 +100,29 @@ public class Investment {
 
     public void setInvestmentDate(LocalDate investmentDate) {
         this.investmentDate = investmentDate;
+    }
+
+    public Long getSharesOwned() {
+        return sharesOwned;
+    }
+
+    public void setSharesOwned(Long sharesOwned) {
+        this.sharesOwned = sharesOwned;
+    }
+
+    public Certificat getCertificat() {
+        return certificat;
+    }
+
+    public void setCertificat(Certificat certificat) {
+        this.certificat = certificat;
+    }
+
+    public Payment getPayment() {
+        return payment;
+    }
+
+    public void setPayment(Payment payment) {
+        this.payment = payment;
     }
 }
