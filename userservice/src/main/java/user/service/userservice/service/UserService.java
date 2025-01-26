@@ -47,6 +47,7 @@ public class UserService {
         event.put(EVENT_TYPE, USER_CREATED_EVENT);
         ObjectNode payload = new ObjectMapper().createObjectNode();
         payload.put(USER_ID, savedUser.getId());
+        payload.put("role", savedUser.getRole());
         event.set(PAYLOAD, payload);
 
         kafkaProducer.sendMessage(topic, event);

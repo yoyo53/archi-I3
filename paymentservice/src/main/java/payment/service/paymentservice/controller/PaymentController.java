@@ -1,7 +1,11 @@
 package payment.service.paymentservice.controller;
 
+import java.net.URI;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,10 +25,34 @@ public class PaymentController {
         this.paymentService = paymentService;
     }
 
-    @PostMapping
-    @RequestMapping("/create")
+    @PostMapping("/create")
     public ResponseEntity<String> createPayment(@RequestBody Payment payment) {
-        paymentService.createPayment(payment);
-        return ResponseEntity.ok("Payment created");
+        try{
+            paymentService.createPayment(payment);
+            URI resourceLocation = new URI("/api/payments/" + payment.getId());
+            return ResponseEntity.created(resourceLocation).body("Payment created");
+        }catch(Exception e){
+            return ResponseEntity.badRequest().body("Error creating payment");
+        }
     }
+
+    @GetMapping
+    public ResponseEntity<Iterable<Payment>> getPayments() {
+        try{
+            return ResponseEntity.ok().body(paymentService.getPayments());
+        }catch(Exception e){
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Payment> getPaymentById(@PathVariable Long id) {
+        try{
+            return ResponseEntity.ok().body(paymentService.getPaymentById(id));
+        }catch(Exception e){
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    
 }
