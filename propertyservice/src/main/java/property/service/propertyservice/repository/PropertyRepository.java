@@ -7,4 +7,6 @@ import property.service.propertyservice.model.Property;
 
 @Repository
 public interface PropertyRepository extends JpaRepository<Property, Long> {
+
+    Iterable<Property> findByStatus(String status);
 }

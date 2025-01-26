@@ -24,26 +24,18 @@ public class KafkaConsumer {
         this.propertyService = propertyService;
     }
 
-    @KafkaListener(topics = "${spring.kafka.topic}", groupId = "${spring.kafka.consumer.group-id}")
-    public void consume(String message) {
-        logger.warn(String.format("#### -> Consumed message -> %s", message));
+    @KafkaListener(topics = "${spring.kafka.topic}", containerFactory = "kafkaListenerContainerFactory")
+    public void consume(ObjectNode message) {
+        logger.warn(String.format("#### -> Consumed message -> %s", message.toString()));
     
         try {
-            // Parse le message JSON en ObjectNode
-            ObjectNode event = new ObjectMapper().readValue(message, ObjectNode.class);
-    
-            // Loggez le contenu complet de l'objet event
-            logger.warn("Event: {}", event);
-    
+            ObjectNode event = new ObjectMapper().readValue(message.toString(), ObjectNode.class);
             String eventType = event.get("EventType").asText();
     
             switch (eventType) {
                 case "UserCreated":
                     logger.warn("User created event received");
                     JsonNode payload = event.get("Payload");
-    
-                    // Loggez le contenu de payload
-                    logger.warn("Payload: {}", payload);
     
                     if (payload != null && payload.hasNonNull("role") && payload.hasNonNull("id")) {
                         String role = payload.get("role").asText();

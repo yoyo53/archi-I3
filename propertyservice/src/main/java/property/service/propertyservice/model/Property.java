@@ -1,8 +1,6 @@
 package property.service.propertyservice.model;
 
 
-import java.util.ArrayList;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -13,6 +11,23 @@ import jakarta.persistence.Table;
 @Table(name = "properties")
 public class Property {
 
+    private enum Status{
+        DRAFT("DRAFT"),
+        OPENED("OPENED"),
+        FUNDED("FUNDED"),
+        CLOSED("CLOSED");
+
+        private final String status;
+
+        Status(String displayName) {
+            this.status = displayName;
+        }
+
+        public String getStatus() {
+            return status;
+        }
+
+    }
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -22,10 +37,11 @@ public class Property {
     private double price;
     private double annualRentalIncomeRate;
     private double appreciationRate;
-    private String status;
+    private Status status;
     private String fundingDeadline;
     private double fundedAmount;
-    private ArrayList<Investment> investors;
+    
+
 
     public Property() {}
     public Long getId() {
@@ -65,10 +81,10 @@ public class Property {
         this.appreciationRate = appreciationRate;
     }
     public String getStatus() {
-        return status;
+        return status.getStatus();
     }
     public void setStatus(String status) {
-        this.status = status;
+        this.status = Status.valueOf(status);
     }
     public String getFundingDeadline() {
         return fundingDeadline;
@@ -81,12 +97,6 @@ public class Property {
     }
     public void setFundedAmount(double fundedAmount) {
         this.fundedAmount = fundedAmount;
-    }
-    public ArrayList<Investment> getInvestors() {
-        return investors;
-    }
-    public void setInvestors(ArrayList<Investment> investors) {
-        this.investors = investors;
     }
 
     
