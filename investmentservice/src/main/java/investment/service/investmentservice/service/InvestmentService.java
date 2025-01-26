@@ -4,12 +4,15 @@ import java.math.BigDecimal;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import investment.service.investmentservice.kafka.KafkaProducer;
+
+import investment.service.investmentservice.dto.InvestmentDTO;
 
 // Investment
 import investment.service.investmentservice.model.Investment;
@@ -18,7 +21,8 @@ import investment.service.investmentservice.repository.InvestmentRepository;
 // User
 import investment.service.investmentservice.model.User;
 import investment.service.investmentservice.repository.UserRepository;
-
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 // Property
 import investment.service.investmentservice.model.Property;
 import investment.service.investmentservice.repository.PropertyRepository;
@@ -60,7 +64,19 @@ public class InvestmentService {
     }
 
     // Investment
-    public String createInvestment(Investment investment) {
+    public Investment createInvestment(@NotNull @Valid InvestmentDTO investmentDTO, @NotNull Long userID) {
+        if (investmentDTO.getAmount() <= 0) {
+            throw new IllegalArgumentException("Investment amount must be greater than zero");
+        }
+        Property property = propertyRepository.findById(investmentDTO.getPropertyId()).orElseThrow();
+        if (!canInvest(property, investmentDTO.getAmount())) {
+            throw new IllegalArgumentException("Investment exceeds property price");
+        }
+        User user = userRepository.findById(userID).orElseThrow();
+        
+
+        Investment investment = new Investment(property, user, investmentDTO.getAmount());
+        
         Investment savedInvestment = investmentRepository.save(investment);
 
         //Json Object
@@ -71,20 +87,24 @@ public class InvestmentService {
         event.set(PAYLOAD, payload);
 
         kafkaProducer.sendMessage(topic, event);
-        return "Investment created successfully";
+        return savedInvestment;
     }
 
-    public Boolean canInvest(Long propertyId, Double amount) {
-        if (!propertyExists(propertyId)) {
-            return false; //"Property does not exist";
-        }
+    public Iterable<Investment> getInvestments() {
+        return investmentRepository.findAll();
+    }
 
-        Property property = propertyRepository.findById(propertyId).orElse(null);
-        if (property == null) {
-            return false; //"Property not found";
-        }
+    public Investment getInvestment(Long id) {
+        return investmentRepository.findById(id).orElse(null);
+    }
 
-        BigDecimal totalInvested = investmentRepository.findTotalInvestedByPropertyID(propertyId);
+    public Iterable<Investment> getInvestmentsByUser(Long userID) {
+        return investmentRepository.findByUser_id(userID);
+    }
+
+    public Boolean canInvest(@NotNull @Valid Property property, Double amount) {
+
+        BigDecimal totalInvested = investmentRepository.findTotalInvestedByPropertyID(property.getId());
         if (totalInvested == null) {
             totalInvested = BigDecimal.ZERO;
         }
@@ -97,84 +117,31 @@ public class InvestmentService {
     }
 
     // User
-    public Boolean userExists(Long userId) {
-        return userRepository.existsById(userId);
+    public User createUser(User user) {
+        User savedUser = userRepository.save(user);
+        return savedUser;
     }
-
-    public String createUser(User user) {
-        if (userExists(user.getId())) {
-            return "User already exists";
-        } else if (!user.getRole().equals("Investor")) {
-            return "Role must be either Investor";
-        } else {
-            userRepository.save(user);
-            return "User created successfully";
-        }
-    }
-
-
 
     // Property
-    public Boolean propertyExists(Long propertyId) {
-        return propertyRepository.existsById(propertyId);
+    public Property createProperty(Property property) {
+        Property savedProperty = propertyRepository.save(property);
+        return savedProperty;
     }
-    public String createProperty(Property property) {
-        if (propertyExists(property.getId())) {
-            return "Property already exists";
-        } else {
-            propertyRepository.save(property);
 
-            return "Property created successfully";
-        }
+    public Property updatePropertyStatus(Property property) {
+        Property updatedProperty = propertyRepository.save(property);
+        return updatedProperty;
     }
 
     // Payment
-    public String createPayment(Payment payment) {
-        if (paymentRepository.existsById(payment.getId())) {
-            return "Payment already exists";
-        } else {
-            paymentRepository.save(payment);
-
-            return "Payment created successfully";
-        }
+    public Payment createPayment(Payment payment) {
+        Payment savedPayment = paymentRepository.save(payment);
+        return savedPayment;
     }
 
     // Certificat
-    public String createCertificat(Certificat certificat) {
-        if (certificatRepository.existsById(certificat.getId())) {
-            return "Certificat already exists";
-        } else {
-            certificatRepository.save(certificat);
-
-            return "Certificat created successfully";
-        }
+    public Certificat createCertificat(Certificat certificat) {
+        Certificat savedCertificat = certificatRepository.save(certificat);
+        return savedCertificat;
     }
-
-    // public String createUser(User user) {
-    //     if (userRepository.existsById(user.getId())) {
-    //         return "User already exists";
-    //     } else if (!user.getRole().equals("Investor") && !user.getRole().equals("Agent")) {
-    //         return "Role must be either Investor or Agent";
-    //     } else {
-    //         userRepository.save(user);
-    //         //Json Object
-    //         ObjectNode objectNode = new ObjectMapper().createObjectNode();
-
-    //         kafkaProducer.sendMessage("user-topic", "User created: " + user.getId());
-    //         return "User created successfully";
-    //     }
-    // }
-
-    // public String loginUser(User user) {
-    //     if (userRepository.existsById(user.getId())) {
-    //         User userFromDb = userRepository.findById(user.getId()).get();
-    //         if (userFromDb.getPassword().equals(user.getPassword())) {
-    //             return "Login successful" + userFromDb.getId();
-    //         } else {
-    //             return "Invalid password";
-    //         }
-    //     } else {
-    //         return "User does not exist";
-    //     }
-    // }
 }

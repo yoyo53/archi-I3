@@ -7,4 +7,5 @@ import investment.service.investmentservice.model.Property;
 
 @Repository
 public interface PropertyRepository extends JpaRepository<Property, Long> {
+
 }

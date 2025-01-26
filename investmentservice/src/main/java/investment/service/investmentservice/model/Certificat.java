@@ -3,6 +3,7 @@ package investment.service.investmentservice.model;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
 @Entity
@@ -11,6 +12,9 @@ public class Certificat {
 
     @Id
     private Long id;
+
+    @OneToOne(mappedBy = "certificat")
+    private Investment investment;
 
     public Certificat() {
     }
@@ -25,5 +29,13 @@ public class Certificat {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Investment getInvestment() {
+        return investment;
+    }
+
+    public void setInvestment(Investment investment) {
+        this.investment = investment;
     }
 }

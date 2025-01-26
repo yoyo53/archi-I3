@@ -3,24 +3,45 @@ package investment.service.investmentservice.model;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.OneToMany;
 
 @Entity
 @Table(name = "properties")
 public class Property {
+    public enum Status {
+        DRAFT("Draft"),
+        OPENED("Opened"),
+        FUNDED("Funded"),
+        CLOSED("Closed");
+
+        private final String status;
+
+        Status(String displayName) {
+            this.status = displayName;
+        }
+
+        public String getStatus() {
+            return status;
+        }
+    }
 
     @Id
     private Long id;
 
     private Long price;
 
-    private Long[] investors; // List of investors if there are Long
+    private Status status;
+
+    @OneToMany(mappedBy = "property")
+    private Investment[] investments;
 
     public Property() {
     }
 
-    public Property(Long id, Long price) {
+    public Property(Long id, Long price, Status status, Long[] investors) {
         this.id = id;
         this.price = price;
+        this.status = status;
     }
 
     public Long getId() {
@@ -39,11 +60,19 @@ public class Property {
         this.price = price;
     }
 
-    public Long[] getInvestors() {
-        return investors;
+    public String getStatus() {
+        return status.getStatus();
     }
 
-    public void setInvestors(Long[] investors) {
-        this.investors = investors;
+    public void setStatus(String status) {
+        this.status = Status.valueOf(status);
+    }
+
+    public Investment[] getInvestments() {
+        return investments;
+    }
+
+    public void setInvestments(Investment[] investments) {
+        this.investments = investments;
     }
 }

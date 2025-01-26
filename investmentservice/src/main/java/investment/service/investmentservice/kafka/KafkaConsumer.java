@@ -53,6 +53,11 @@ public class KafkaConsumer {
                     investmentService.createProperty(property);
                     break;
 
+                case "PropertyUpdated":
+                    Property propertyUpdated = objectMapper.convertValue(message.get(PAYLOAD), Property.class);
+                    investmentService.updatePropertyStatus(propertyUpdated);
+                    break;
+
                 case "PaymentCreated":
                     Payment payment = objectMapper.convertValue(message.get(PAYLOAD), Payment.class);
                     investmentService.createPayment(payment);
