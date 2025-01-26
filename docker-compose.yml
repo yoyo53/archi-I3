@@ -45,6 +45,27 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    
+  property-service:
+    container_name: property-service
+    depends_on:
+      kafka-service:
+        condition: service_healthy
+    build: propertyservice
+    ports:
+      - "8082:8082"
+    env_file:
+      - propertyservice/.env
+    environment:
+      - LOCAL_TIMEZONE=Europe/Paris
+      - SERVER_PORT=8082
+      - SPRING_KAFKA_URL=kafka-service:9092
+      - LOGGING_LEVEL_ROOT=WARN
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "8082"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   investment-service:
     container_name: investment-service

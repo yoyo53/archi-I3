@@ -36,11 +36,73 @@ public class PropertyService {
     }
 
     public Property createProperty (@RequestBody Property property, String userID){
-        //TODO check if user is agent before creating property
+        if(userID == null){
+            logger.error("User ID is null");
+            return null;
+        }
+        User user = userRepository.findById(Long.parseLong(userID)).get();
+        if(user == null || !user.getRole().equals("Agent")){
+            logger.error("User does not exist or is not an agent");
+            return null;
+        }
         Property savedProperty = propertyRepository.save(property);
 
         return savedProperty;
     }
+
+    public void deleteProperty(Long id, String userID){
+        if(userID == null){
+            logger.error("User ID is null");
+            return;
+        }
+        User user = userRepository.findById(Long.parseLong(userID)).get();
+        if(user == null || !user.getRole().equals("Agent")){
+            logger.error("User does not exist or is not an agent");
+            return;
+        }
+        if(propertyRepository.findById(id).isEmpty()){
+            logger.error("Property does not exist");
+            return;
+        }
+        propertyRepository.deleteById(id);
+    }
+
+    public Iterable<Property> getProperties(){
+        return propertyRepository.findAll();
+    }
+    
+    public Property getPropertyById(Long id){
+        return propertyRepository.findById(id).get();
+    }
+
+    public void updateProperty(Long id, Property updatedProperty, String userID){
+        if(userID == null){
+            logger.error("User ID is null");
+            return;
+        }
+        User user = userRepository.findById(Long.parseLong(userID)).get();
+        if(user == null || !user.getRole().equals("Agent")){
+            logger.error("User does not exist or is not an agent");
+            return;
+        }
+        if(propertyRepository.findById(id).isEmpty()){
+            logger.error("Property does not exist");
+            return;
+        }
+        //TODO Check if every field from updatedProperty is valid
+        Property oldProperty = propertyRepository.findById(id).get();
+        oldProperty.setName(updatedProperty.getName());
+        oldProperty.setType(updatedProperty.getType());
+        oldProperty.setPrice(updatedProperty.getPrice());
+        oldProperty.setAnnualRentalIncomeRate(updatedProperty.getAnnualRentalIncomeRate());
+        oldProperty.setAppreciationRate(updatedProperty.getAppreciationRate());
+        oldProperty.setStatus(updatedProperty.getStatus());
+        oldProperty.setFundingDeadline(updatedProperty.getFundingDeadline());
+        oldProperty.setFundedAmount(updatedProperty.getFundedAmount());
+        oldProperty.setInvestors(updatedProperty.getInvestors());
+        propertyRepository.save(oldProperty);
+    }
+        
 
     public void addAgent(Long userID){
         User user = new User(userID, "Agent");
