@@ -36,7 +36,7 @@ public class KafkaConsumer {
     }
     
 
-    @KafkaListener(topics = "${spring.kafka.topic}", groupId = "${spring.kafka.consumer.group-id}")
+    @KafkaListener(topics = "${spring.kafka.topic}", containerFactory = "kafkaListenerContainerFactory")
     public void consume(ObjectNode message) {
         logger.warn(String.format("Consuming message: %s", message.toString()));
 
