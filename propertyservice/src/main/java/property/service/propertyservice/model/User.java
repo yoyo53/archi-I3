@@ -1,23 +1,44 @@
 package property.service.propertyservice.model;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "users")
 public class User {
 
+    public enum UserRole {
+        AGENT("AGENT"),
+        INVESTOR("INVESTOR");
+    
+        private final String description;
+    
+        UserRole(String description) {
+            this.description = description;
+        }
+    
+        public String getDescription() {
+            return description;
+        }
+    }
+
     @Id
+    @NotNull
     private Long id;
 
-    private String role;
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    private UserRole role;
 
     public User() {}
 
     public User(Long id, String role) {
         this.id = id;
-        this.role = role;
+        this.role = UserRole.valueOf(role);
     }
 
     public Long getId() {
@@ -29,11 +50,11 @@ public class User {
     }
 
     public String getRole() {
-        return role;
+        return role.getDescription();
     }
 
     public void setRole(String role) {
-        this.role = role;
+        this.role = UserRole.valueOf(role);
     }
 
 }

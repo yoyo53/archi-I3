@@ -2,6 +2,8 @@ package property.service.propertyservice.controller;
 
 import java.net.URI;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -23,7 +25,7 @@ import property.service.propertyservice.service.PropertyService;
 public class PropertyController {
 
     private final PropertyService propertyService;
-
+    private final Logger logger = LoggerFactory.getLogger(PropertyController.class);
 
     @Autowired
     public PropertyController(PropertyService propertyService) {
@@ -32,21 +34,24 @@ public class PropertyController {
 
 
     @PostMapping
-    public ResponseEntity<String> createProperty(@RequestBody Property property, @RequestHeader("Authorization") String userID) {
+    public ResponseEntity<Object> createProperty(@RequestBody Property property, @RequestHeader("Authorization") Long userID) {
         try{
-            propertyService.createProperty(property, userID);
-            URI resourceLocation = new URI("/api/payments/" + property.getId());
-            return ResponseEntity.created(resourceLocation).body("Property created");
+            Property propertySaved = propertyService.createProperty(property, userID);
+            URI resourceLocation = new URI("/api/properties/" + property.getId());
+            return ResponseEntity.created(resourceLocation).body(propertySaved);
         }catch(Exception e){
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteProperty(@PathVariable Long id, @RequestHeader("Authorization") String userID) {
+    public ResponseEntity<Object> deleteProperty(@PathVariable Long id, @RequestHeader("Authorization") Long userID) {
         try {
-            propertyService.deleteProperty(id, userID);
-            return ResponseEntity.ok("Property deleted");
+            Long deletedID = propertyService.deleteProperty(id, userID);
+            if (deletedID == null) {
+                return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.noContent().build();
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
@@ -75,16 +80,18 @@ public class PropertyController {
         try{
             return ResponseEntity.ok().body(propertyService.getOpenProperties());
         }catch(Exception e){
+            logger.error("Error getting open properties", e);
             return ResponseEntity.badRequest().build();
         }
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<String> updateProperty(@PathVariable Long id, @RequestBody PropertyDTO propertyDTO, @RequestHeader("Authorization") String userID) {
+    public ResponseEntity<Object> updateProperty(@PathVariable Long id, @RequestBody PropertyDTO propertyDTO, @RequestHeader("Authorization") Long userID) {
         try {
-            propertyService.updateProperty(id, propertyDTO, userID);
-            return ResponseEntity.ok("Property updated");
+            Property newProperty = propertyService.updateProperty(id, propertyDTO, userID);
+            return ResponseEntity.ok().body(newProperty);
         } catch (Exception e) {
+            logger.error("Error getting open properties", e);
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }

@@ -6,28 +6,31 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.EnumType;
 
 @Entity
 @Table(name = "properties")
 public class Property {
 
-    private enum Status{
+    public enum PropertyStatus {
         DRAFT("DRAFT"),
         OPENED("OPENED"),
         FUNDED("FUNDED"),
         CLOSED("CLOSED");
-
-        private final String status;
-
-        Status(String displayName) {
-            this.status = displayName;
+    
+        private final String description;
+    
+        PropertyStatus(String description) {
+            this.description = description;
         }
-
-        public String getStatus() {
-            return status;
+    
+        public String getDescription() {
+            return description;
         }
-
     }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -37,9 +40,15 @@ public class Property {
     private double price;
     private double annualRentalIncomeRate;
     private double appreciationRate;
-    private Status status;
+
+    @Enumerated(EnumType.STRING)
+    private PropertyStatus status;
+
     private String fundingDeadline;
     private double fundedAmount;
+    
+    @OneToMany(mappedBy = "property")
+    private Investment[] investments;
     
 
 
@@ -81,10 +90,10 @@ public class Property {
         this.appreciationRate = appreciationRate;
     }
     public String getStatus() {
-        return status.getStatus();
+        return status.getDescription();
     }
     public void setStatus(String status) {
-        this.status = Status.valueOf(status);
+        this.status = PropertyStatus.valueOf(status);
     }
     public String getFundingDeadline() {
         return fundingDeadline;
@@ -98,8 +107,11 @@ public class Property {
     public void setFundedAmount(double fundedAmount) {
         this.fundedAmount = fundedAmount;
     }
-
-    
-
+    public Investment[] getInvestments() {
+        return investments;
+    }
+    public void setInvestments(Investment[] investments) {
+        this.investments = investments;
+    }
     
 }
