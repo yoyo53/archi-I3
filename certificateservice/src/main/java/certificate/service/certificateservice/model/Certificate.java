@@ -5,6 +5,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.OneToOne;
+import jakarta.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "certificates")
@@ -14,12 +16,19 @@ public class Certificate {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long userId;
+    @OneToOne
+    @NotNull
+    private Investment investment;
 
-    private Long investmentId;
+    @NotNull
+    private String emissionDate;
 
-    // Constructeurs, getters, setters
     public Certificate() {}
+
+    public Certificate(Investment investment, String emissionDate) {
+        this.investment = investment;
+        this.emissionDate = emissionDate;
+    }
 
     public Long getId() {
         return id;
@@ -29,19 +38,19 @@ public class Certificate {
         this.id = id;
     }
 
-    public Long getUserId() {
-        return userId;
+    public Investment getInvestment() {
+        return investment;
     }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    public void setInvestment(Investment investment) {
+        this.investment = investment;
     }
 
-    public Long getInvestmentId() {
-        return investmentId;
+    public String getEmissionDate() {
+        return emissionDate;
     }
 
-    public void setInvestmentId(Long investmentId) {
-        this.investmentId = investmentId;
+    public void setEmissionDate(String emissionDate) {
+        this.emissionDate = emissionDate;
     }
 }

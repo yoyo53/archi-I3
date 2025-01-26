@@ -118,6 +118,7 @@ services:
     env_file:
       - certificateservice/.env
     environment:
+      - LOCAL_TIMEZONE=Europe/Paris
       - SERVER_PORT=8087
       - SPRING_KAFKA_URL=kafka-service:9092
       - LOGGING_LEVEL_ROOT=WARN
