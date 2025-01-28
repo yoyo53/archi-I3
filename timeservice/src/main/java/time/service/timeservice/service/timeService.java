@@ -1,6 +1,5 @@
 package time.service.timeservice.service;
 
-import java.math.BigDecimal;
 import java.time.format.DateTimeFormatter;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -16,7 +15,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import time.service.timeservice.kafka.KafkaProducer;
 
 import time.service.timeservice.dto.TimeDTO;
-
+import jakarta.annotation.PostConstruct;
 import jakarta.validation.Valid;
 
 @Service
@@ -25,7 +24,7 @@ public class timeService {
     @Value("${spring.application.timezone}")
     private String timeZone;
 
-    private LocalDate systemDate = LocalDate.now(ZoneId.of(timeZone));
+    private LocalDate systemDate;
 
     @Value("${spring.kafka.topic}")
     private String topic;
@@ -40,6 +39,12 @@ public class timeService {
         this.kafkaProducer = kafkaProducer;
     }
 
+    @PostConstruct
+    public void init() {
+        // Initialisation après l'injection
+        this.systemDate = LocalDate.now(ZoneId.of(timeZone));
+    }
+
     // Method to send the time to the Kafka topic, with TimeDTO as input : date_to_move or number_day_to_skip
     // If both are null, IllegalArgumentException is thrown
     public ResponseEntity<ObjectNode> sendTime(@Valid TimeDTO timeDTO) {
@@ -48,7 +53,7 @@ public class timeService {
         }
         if (timeDTO.getDate_to_move() != null) {
             LocalDate endDate = LocalDate.parse(timeDTO.getDate_to_move());
-            while (!systemDate.isAfter(endDate)) {
+            while (!systemDate.isAfter(endDate) && !systemDate.isEqual(endDate)) {
                 // Move to the next day
                 systemDate = systemDate.plusDays(1);
 
