@@ -10,4 +10,6 @@ import property.service.propertyservice.model.Property.PropertyStatus;
 public interface PropertyRepository extends JpaRepository<Property, Long> {
 
     Iterable<Property> findByStatus(PropertyStatus status);
+
+    Integer countByStatus(PropertyStatus status);
 }

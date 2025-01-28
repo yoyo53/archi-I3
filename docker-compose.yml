@@ -78,6 +78,7 @@ services:
     env_file:
       - investmentservice/.env
     environment:
+      - LOCAL_TIMEZONE=Europe/Paris
       - SERVER_PORT=8083
       - SPRING_KAFKA_URL=kafka-service:9092
       - LOGGING_LEVEL_ROOT=WARN

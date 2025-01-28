@@ -66,16 +66,7 @@ public class PropertyService {
         
         ObjectNode event = new ObjectMapper().createObjectNode();
         event.put(EVENT_TYPE, PROPERTY_CREATED_EVENT);
-        ObjectNode payload = new ObjectMapper().createObjectNode();
-        payload.put("id", savedProperty.getId());
-        payload.put("name", savedProperty.getName());
-        payload.put("type", savedProperty.getType());
-        payload.put("price", savedProperty.getPrice());
-        payload.put("annualRentalIncomeRate", savedProperty.getAnnualRentalIncomeRate());
-        payload.put("appreciationRate", savedProperty.getAppreciationRate());
-        payload.put("status", savedProperty.getStatus());
-        payload.put("fundingDeadline", savedProperty.getFundingDeadline());
-        payload.put("fundedAmount", savedProperty.getFundedAmount());
+        ObjectNode payload = new ObjectMapper().convertValue(savedProperty, ObjectNode.class);
         event.set(PAYLOAD, payload);
 
         kafkaProducer.sendMessage(topic, event);
@@ -131,7 +122,7 @@ public class PropertyService {
             return null;
         }
 
-        if(!checkMaximumOpenProperties()){
+        if(!checkMaximumOpenProperties() && propertyDTO.getStatus().equals(PropertyStatus.OPENED.getDescription())){
             logger.error("Maximum number of open properties reached");
             throw new Exception("Maximum number of open properties reached");
         }
@@ -143,9 +134,7 @@ public class PropertyService {
 
         ObjectNode event = new ObjectMapper().createObjectNode();
         event.put(EVENT_TYPE, PROPERTY_UPDATED_EVENT);
-        ObjectNode payload = new ObjectMapper().createObjectNode();
-        payload.put("id", newProperty.getId());
-        payload.put("status", newProperty.getStatus());
+        ObjectNode payload = new ObjectMapper().convertValue(newProperty, ObjectNode.class);
         event.set(PAYLOAD, payload);
 
         kafkaProducer.sendMessage(topic, event);
@@ -158,16 +147,7 @@ public class PropertyService {
     }
 
     private boolean checkMaximumOpenProperties(){
-        int count = 0;
-        for(Property property : propertyRepository.findAll()){
-            if(property.getStatus().equals(PropertyStatus.OPENED.getDescription())){
-                count++;
-            }
-        }
-        if(count >= 6){
-            return false;
-        }
-        return true;
+        return propertyRepository.countByStatus(PropertyStatus.OPENED) <= 5;
     }
         
 

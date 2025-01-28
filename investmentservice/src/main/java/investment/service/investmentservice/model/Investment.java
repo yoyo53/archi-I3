@@ -1,7 +1,5 @@
 package investment.service.investmentservice.model;
 
-import java.time.LocalDate;
-
 import jakarta.validation.constraints.NotNull;
 
 import jakarta.persistence.Entity;
@@ -32,10 +30,10 @@ public class Investment {
     private Double amountInvested;
 
     @NotNull
-    private LocalDate investmentDate;
+    private String investmentDate;
 
     @NotNull
-    private Long sharesOwned;
+    private Double sharesOwned;
 
     @OneToOne
     private Certificat certificat;
@@ -47,18 +45,12 @@ public class Investment {
     public Investment() {
     }
 
-    public Investment(Property property, User user, Double amountInvested) {
-        this.property = property;
-        this.user = user;
-        this.amountInvested = amountInvested;
-    }
-
-    public Investment(Property property, User user, Double amountInvested, LocalDate investmentDate, Long sharesOwned) {
+    public Investment(Property property, User user, String investmentDate, Double amountInvested) {
         this.property = property;
         this.user = user;
         this.amountInvested = amountInvested;
         this.investmentDate = investmentDate;
-        this.sharesOwned = sharesOwned;
+        this.sharesOwned = amountInvested / property.getPrice();
     }
 
     // Getters et Setters
@@ -94,19 +86,19 @@ public class Investment {
         this.amountInvested = amountInvested;
     }
 
-    public LocalDate getInvestmentDate() {
+    public String getInvestmentDate() {
         return investmentDate;
     }
 
-    public void setInvestmentDate(LocalDate investmentDate) {
+    public void setInvestmentDate(String investmentDate) {
         this.investmentDate = investmentDate;
     }
 
-    public Long getSharesOwned() {
+    public Double getSharesOwned() {
         return sharesOwned;
     }
 
-    public void setSharesOwned(Long sharesOwned) {
+    public void setSharesOwned(Double sharesOwned) {
         this.sharesOwned = sharesOwned;
     }
 

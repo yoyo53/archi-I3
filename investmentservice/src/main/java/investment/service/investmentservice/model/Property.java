@@ -1,6 +1,8 @@
 package investment.service.investmentservice.model;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.OneToMany;
@@ -8,20 +10,20 @@ import jakarta.persistence.OneToMany;
 @Entity
 @Table(name = "properties")
 public class Property {
-    public enum Status {
-        DRAFT("Draft"),
-        OPENED("Opened"),
-        FUNDED("Funded"),
-        CLOSED("Closed");
-
-        private final String status;
-
-        Status(String displayName) {
-            this.status = displayName;
+    public enum PropertyStatus {
+        DRAFT("DRAFT"),
+        OPENED("OPENED"),
+        FUNDED("FUNDED"),
+        CLOSED("CLOSED");
+    
+        private final String description;
+    
+        PropertyStatus(String description) {
+            this.description = description;
         }
-
-        public String getStatus() {
-            return status;
+    
+        public String getDescription() {
+            return description;
         }
     }
 
@@ -30,7 +32,8 @@ public class Property {
 
     private Long price;
 
-    private Status status;
+    @Enumerated(EnumType.STRING)
+    private PropertyStatus status;
 
     @OneToMany(mappedBy = "property")
     private Investment[] investments;
@@ -38,7 +41,7 @@ public class Property {
     public Property() {
     }
 
-    public Property(Long id, Long price, Status status, Long[] investors) {
+    public Property(Long id, Long price, PropertyStatus status, Long[] investors) {
         this.id = id;
         this.price = price;
         this.status = status;
@@ -61,11 +64,11 @@ public class Property {
     }
 
     public String getStatus() {
-        return status.getStatus();
+        return status.getDescription();
     }
 
     public void setStatus(String status) {
-        this.status = Status.valueOf(status);
+        this.status = PropertyStatus.valueOf(status);
     }
 
     public Investment[] getInvestments() {

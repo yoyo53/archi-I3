@@ -1,6 +1,8 @@
 package investment.service.investmentservice.model;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.OneToMany;
@@ -9,10 +11,26 @@ import jakarta.persistence.OneToMany;
 @Table(name = "users")
 public class User {
 
+    public enum UserRole {
+        AGENT("AGENT"),
+        INVESTOR("INVESTOR");
+    
+        private final String description;
+    
+        UserRole(String description) {
+            this.description = description;
+        }
+    
+        public String getDescription() {
+            return description;
+        }
+    }
+
     @Id
     private Long id;
 
-    private String role;
+    @Enumerated(EnumType.STRING)
+    private UserRole role;
 
     @OneToMany(mappedBy = "user")
     private Investment[] investments;
@@ -33,11 +51,11 @@ public class User {
     }
 
     public String getRole() {
-        return role;
+        return role.getDescription();
     }
 
     public void setRole(String role) {
-        this.role = role;
+        this.role = UserRole.valueOf(role);
     }
 
     public Investment[] getInvestments() {
