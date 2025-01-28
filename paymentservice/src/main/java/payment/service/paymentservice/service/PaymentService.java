@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import payment.service.paymentservice.kafka.KafkaProducer;
 import payment.service.paymentservice.model.Payment;
+import payment.service.paymentservice.model.Payment.PaymentStatus;
 import payment.service.paymentservice.repository.PaymentRepository;
 
 import java.text.DateFormat;
@@ -67,6 +68,26 @@ public class PaymentService {
     
     public Payment getPaymentById(Long id){
         return paymentRepository.findById(id).get();
+    }
+
+    public Payment updatePaymentStatus(Long id, String status){
+        Payment payment = paymentRepository.findById(id).orElseThrow();
+        payment.setStatus(status);
+        Payment updatedPayment = paymentRepository.save(payment);
+
+        ObjectNode event = new ObjectMapper().createObjectNode();
+
+        if(updatedPayment.getStatus().equals(PaymentStatus.SUCCESS.getDescription())){
+            event.put(EVENT_TYPE, "PaymentSuccessful");
+        }else{
+            event.put(EVENT_TYPE, "PaymentFailed");
+        }
+        ObjectNode payload = new ObjectMapper().convertValue(updatedPayment, ObjectNode.class);
+        event.set(PAYLOAD, payload);
+
+        kafkaProducer.sendMessage(topic, event);
+        
+        return updatedPayment;
     }
 
     private String getISOdate() {

@@ -21,10 +21,12 @@ import investment.service.investmentservice.dto.InvestmentDTO;
 
 // Investment
 import investment.service.investmentservice.model.Investment;
+import investment.service.investmentservice.model.Investment.InvestmentStatus;
 import investment.service.investmentservice.repository.InvestmentRepository;
 
 // User
 import investment.service.investmentservice.model.User;
+import investment.service.investmentservice.model.Payment.PaymentStatus;
 import investment.service.investmentservice.model.User.UserRole;
 import investment.service.investmentservice.model.Property.PropertyStatus;
 import investment.service.investmentservice.repository.UserRepository;
@@ -80,8 +82,8 @@ public class InvestmentService {
 
     // Investment
     public Investment createInvestment(@NotNull @Valid InvestmentDTO investmentDTO, @NotNull Long userID) {
-        if (investmentDTO.getAmount() <= 500) {
-            throw new IllegalArgumentException("Investment amount must be greater than zero");
+        if (investmentDTO.getAmount() < 500) {
+            throw new IllegalArgumentException("Investment amount must be at least 500");
         }
 
         User user = userRepository.findById(userID).orElseThrow();
@@ -148,12 +150,30 @@ public class InvestmentService {
 
     public Property updatePropertyStatus(Property property) {
         Property updatedProperty = propertyRepository.save(property);
+
+        if (property.getStatus().equals(PropertyStatus.FUNDED.getDescription())) {
+            Iterable<Investment> investments = investmentRepository.findByProperty_id(property.getId()).orElseThrow();
+            for (Investment investment : investments) {
+                investment.setStatus(InvestmentStatus.COMPLETED.getDescription());
+                investmentRepository.save(investment);
+
+                ObjectNode event = new ObjectMapper().createObjectNode();
+                event.put(EVENT_TYPE, "InvestmentCompleted");
+                ObjectNode payload = new ObjectMapper().convertValue(investment, ObjectNode.class);
+                event.set(PAYLOAD, payload);
+
+                kafkaProducer.sendMessage(topic, event);
+            }
+        }
         return updatedProperty;
     }
 
     // Payment
-    public Payment createPayment(Payment payment) {
+    public Payment createPayment(Payment payment, Long investmentID) {
+        Investment investment = investmentRepository.findById(investmentID).orElseThrow();
         Payment savedPayment = paymentRepository.save(payment);
+        investment.setPayment(savedPayment);
+        investmentRepository.save(investment);
         return savedPayment;
     }
 
@@ -161,6 +181,30 @@ public class InvestmentService {
     public Certificat createCertificat(Certificat certificat) {
         Certificat savedCertificat = certificatRepository.save(certificat);
         return savedCertificat;
+    }
+
+    public Payment updatePaymentStatus(Payment payment) {
+        Payment updatedPayment = paymentRepository.save(payment);
+        
+        Investment investment = investmentRepository.findByPayment_id(payment.getId()).orElseThrow();
+
+        ObjectNode event = new ObjectMapper().createObjectNode();
+        if(payment.getStatus().equals(PaymentStatus.SUCCESS.getDescription())){
+            investment.setStatus(InvestmentStatus.SUCCESS.getDescription());
+            event.put(EVENT_TYPE, "InvestmentSuccessful");
+
+        }else{
+            investment.setStatus(InvestmentStatus.FAILED.getDescription());
+            event.put(EVENT_TYPE, "InvestmentFailed");
+        }
+
+        Investment updatedInvestment = investmentRepository.save(investment);
+        ObjectNode payload = new ObjectMapper().convertValue(updatedInvestment, ObjectNode.class);
+        event.set(PAYLOAD, payload);
+
+        kafkaProducer.sendMessage(topic, event);
+
+        return updatedPayment;
     }
 
     private String getISOdate() {

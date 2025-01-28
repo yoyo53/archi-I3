@@ -1,7 +1,6 @@
 package property.service.propertyservice.service;
 
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +17,7 @@ import property.service.propertyservice.dto.CreatePropertyDTO;
 import property.service.propertyservice.dto.UpdatePropertyDTO;
 import property.service.propertyservice.kafka.KafkaProducer;
 import property.service.propertyservice.model.Investment;
+import property.service.propertyservice.model.Investment.InvestmentStatus;
 import property.service.propertyservice.model.Property;
 import property.service.propertyservice.model.User;
 import property.service.propertyservice.model.User.UserRole;
@@ -158,6 +158,27 @@ public class PropertyService {
     public User createAgent(@NotNull @Valid User user){
         User savedUser = userRepository.save(user);
         return savedUser;
+    }
+
+    public Investment updateInvestmentStatus(@NotNull @Valid Investment investment, Long propertyId){
+        Investment updatedInvestment = investmentRepository.save(investment);
+
+        if (updatedInvestment.getStatus().equals(InvestmentStatus.SUCCESS.getDescription())) {
+            Property property = propertyRepository.findById(propertyId).orElseThrow();
+            Double totalInvested = propertyRepository.sumInvestedAmountById(propertyId);
+            if(totalInvested >= property.getPrice()){
+                property.setStatus(PropertyStatus.FUNDED.getDescription());
+                Property updatedProperty =  propertyRepository.save(property);
+
+                ObjectNode event = new ObjectMapper().createObjectNode();
+                event.put(EVENT_TYPE, "PropertyFunded");
+                ObjectNode payload = new ObjectMapper().convertValue(updatedProperty, ObjectNode.class);
+                event.set(PAYLOAD, payload);
+
+                kafkaProducer.sendMessage(topic, event);
+            }
+        }
+        return updatedInvestment;
     }
 
     public Investment createInvestment(@NotNull @Valid Investment investment, Long propertyId){

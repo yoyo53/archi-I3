@@ -57,6 +57,13 @@ public class CertificateService {
         return savedInvestment;
     }
 
+    public Investment updateInvestmentStatus(@NotNull @Valid Long investmentId, String status) {
+        Investment investment = investmentRepository.findById(investmentId).orElseThrow();
+        investment.setStatus(status);
+        Investment savedInvestment = investmentRepository.save(investment);
+        return savedInvestment;
+    }
+
     public Investment getInvestment(@NotNull @Valid Long id) {
         return investmentRepository.findById(id).orElse(null);
     }

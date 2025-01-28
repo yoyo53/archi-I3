@@ -1,7 +1,11 @@
 package investment.service.investmentservice.model;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.OneToOne;
@@ -10,26 +14,38 @@ import jakarta.persistence.OneToOne;
 @Entity
 @Table(name = "payments")
 public class Payment {
-    private enum Status {
-        PENDING,
-        SUCCESS,
-        FAILED
+    public enum PaymentStatus {
+        PENDING("PENDING"),
+        SUCCESS("SUCCESS"),
+        FAILED("FAILED");
+
+        private final String description;
+
+        PaymentStatus(String description) {
+            this.description = description;
+        }
+
+        public String getDescription() {
+            return description;
+        }
     }
     
     @Id
     private Long id;
 
-    private Status status;
+    @Enumerated(EnumType.STRING)
+    private PaymentStatus status;
 
+    @JsonIgnore
     @OneToOne(mappedBy = "payment")
     private Investment investment;
 
     public Payment() {
     }
 
-    public Payment(Long id, Status status, Investment investment) {
+    public Payment(Long id, String status, Investment investment) {
         this.id = id;
-        this.status = status;
+        this.status = PaymentStatus.valueOf(status);
         this.investment = investment;
     }
 
@@ -41,12 +57,12 @@ public class Payment {
         this.id = id;
     }
 
-    public Status getStatus() {
-        return status;
+    public String getStatus() {
+        return status.getDescription();
     }
 
-    public void setStatus(Status status) {
-        this.status = status;
+    public void setStatus(String status) {
+        this.status = PaymentStatus.valueOf(status);
     }
 
     public Investment getInvestment() {

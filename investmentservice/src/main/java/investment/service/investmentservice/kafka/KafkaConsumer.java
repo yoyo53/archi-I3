@@ -45,34 +45,35 @@ public class KafkaConsumer {
             switch (eventType) {
                 case "UserCreated":
                     User user = objectMapper.convertValue(message.get(PAYLOAD), User.class);
-                    User usercreated = investmentService.createUser(user);
-                    System.out.println(usercreated);
+                    investmentService.createUser(user);
                     break;
                 
                 case "PropertyCreated":
                     Property property = objectMapper.convertValue(message.get(PAYLOAD), Property.class);
-                    Property propertycreated = investmentService.createProperty(property);
-                    System.out.println(propertycreated);
-                    break;
-
-                case "PropertyUpdated":
-                    Property propertyUpdated = objectMapper.convertValue(message.get(PAYLOAD), Property.class);
-                    Property propertyupdatednew = investmentService.updatePropertyStatus(propertyUpdated);
-                    System.out.println(propertyupdatednew);
+                    investmentService.createProperty(property);
                     break;
 
                 case "PaymentCreated":
                     Payment payment = objectMapper.convertValue(message.get(PAYLOAD), Payment.class);
-                    Payment paymentcreated = investmentService.createPayment(payment);
-                    System.out.println(paymentcreated);
+                    Long InvestmentId = message.get(PAYLOAD).get("InvestmentID").asLong();
+                    investmentService.createPayment(payment, InvestmentId);
                     break;
                 
                 case "CertificatCreated":
                     Certificat certificat = objectMapper.convertValue(message.get(PAYLOAD), Certificat.class);
-                    Certificat certificatcreated = investmentService.createCertificat(certificat);
-                    System.out.println(certificatcreated);
+                    investmentService.createCertificat(certificat);
                     break;
 
+                case "PaymentSuccessful":
+                case "PaymentFailed":
+                    Payment paymentUpdated = objectMapper.convertValue(message.get(PAYLOAD), Payment.class);
+                    investmentService.updatePaymentStatus(paymentUpdated);
+                    break;
+                case "PropertyUpdated":
+                case "PropertyFunded":
+                    Property propertyUpdated = objectMapper.convertValue(message.get(PAYLOAD), Property.class);
+                    investmentService.updatePropertyStatus(propertyUpdated);
+                    break;
                 case "TimeEvent":
                     ObjectNode payloadTime = (ObjectNode) message.get(PAYLOAD);
                     if (payloadTime.has("default_date")) {
