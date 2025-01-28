@@ -12,4 +12,6 @@ public interface CertificateRepository extends JpaRepository<Certificate, Long> 
     Iterable<Certificate> findByInvestment_UserId(Long userId);
 
     Iterable<Certificate> findByInvestment_PropertyId(Long propertyId);
+
+    Iterable<Certificate> findByEmissionDate(String emissionDate);
 }

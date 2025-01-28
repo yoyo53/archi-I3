@@ -54,6 +54,10 @@ public class KafkaConsumer {
                     }
                     break;
 
+                case "InvestmentFund":
+                    ObjectNode payloadFund = (ObjectNode) message.get(PAYLOAD);
+                    certificateService.InvestmentFulfilled(payloadFund.get("id").asLong());
+
                 default:
                     break;
             }

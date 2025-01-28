@@ -81,7 +81,7 @@ public class timeService {
                 ObjectNode event = new ObjectMapper().createObjectNode();
                 event.put(EVENT_TYPE, "TimeEvent");
                 ObjectNode payload = new ObjectMapper().createObjectNode();
-                payload.put("default_date", enventDate);
+                payload.put("date", enventDate);
                 event.set(PAYLOAD, payload);
 
                 kafkaProducer.sendMessage(topic, event);
@@ -98,7 +98,7 @@ public class timeService {
         ObjectNode event = new ObjectMapper().createObjectNode();
         event.put(EVENT_TYPE, "TimeEvent");
         ObjectNode payload = new ObjectMapper().createObjectNode();
-        payload.put("date", enventDate);
+        payload.put("default_date", enventDate);
         event.set(PAYLOAD, payload);
 
         kafkaProducer.sendMessage(topic, event);
