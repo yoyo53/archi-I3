@@ -2,7 +2,12 @@ package investment.service.investmentservice.model;
 
 import jakarta.validation.constraints.NotNull;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -12,7 +17,24 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "investments")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Investment {
+
+    public enum InvestmentStatus {
+        PENDING("PENDING"),
+        SUCCESS("SUCCESS"),
+        FAILED("FAILED");
+    
+        private final String description;
+    
+        InvestmentStatus(String description) {
+            this.description = description;
+        }
+    
+        public String getDescription() {
+            return description;
+        }
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -41,6 +63,10 @@ public class Investment {
     @OneToOne
     private Payment payment;
 
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    private InvestmentStatus status;
+
     // Constructeurs
     public Investment() {
     }
@@ -51,6 +77,7 @@ public class Investment {
         this.amountInvested = amountInvested;
         this.investmentDate = investmentDate;
         this.sharesOwned = amountInvested / property.getPrice();
+        this.status = InvestmentStatus.PENDING;
     }
 
     // Getters et Setters
@@ -117,4 +144,14 @@ public class Investment {
     public void setPayment(Payment payment) {
         this.payment = payment;
     }
+
+    public String getStatus() {
+        return status.getDescription();
+    }
+
+    public void setStatus(String status) {
+        this.status = InvestmentStatus.valueOf(status);
+    }
+
+    
 }

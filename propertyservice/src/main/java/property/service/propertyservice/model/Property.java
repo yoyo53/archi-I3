@@ -1,11 +1,17 @@
 package property.service.propertyservice.model;
 
 
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
+import property.service.propertyservice.dto.CreatePropertyDTO;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.EnumType;
@@ -35,24 +41,48 @@ public class Property {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotNull
     private String name;
+
+    @NotNull
     private String type;
+
+    @NotNull
     private double price;
+
+    @NotNull
     private double annualRentalIncomeRate;
+
+    @NotNull
     private double appreciationRate;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
     private PropertyStatus status;
 
+    @NotNull
     private String fundingDeadline;
-    private double fundedAmount;
     
+    @JsonManagedReference
     @OneToMany(mappedBy = "property")
-    private Investment[] investments;
+    private List<Investment> investments;
     
 
 
-    public Property() {}
+    public Property() {
+        this.status = PropertyStatus.DRAFT;
+    }
+
+    public Property(CreatePropertyDTO propertyDTO){
+        this.name = propertyDTO.getName();
+        this.type = propertyDTO.getType();
+        this.price = propertyDTO.getPrice();
+        this.annualRentalIncomeRate = propertyDTO.getAnnualRentalIncomeRate();
+        this.appreciationRate = propertyDTO.getAppreciationRate();
+        this.status = PropertyStatus.DRAFT;
+        this.fundingDeadline = propertyDTO.getFundingDeadline();
+
+    }
     public Long getId() {
         return id;
     }
@@ -101,16 +131,10 @@ public class Property {
     public void setFundingDeadline(String fundingDeadline) {
         this.fundingDeadline = fundingDeadline;
     }
-    public double getFundedAmount() {
-        return fundedAmount;
-    }
-    public void setFundedAmount(double fundedAmount) {
-        this.fundedAmount = fundedAmount;
-    }
-    public Investment[] getInvestments() {
+    public List<Investment> getInvestments() {
         return investments;
     }
-    public void setInvestments(Investment[] investments) {
+    public void setInvestments(List<Investment> investments) {
         this.investments = investments;
     }
     

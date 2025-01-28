@@ -1,5 +1,12 @@
 package investment.service.investmentservice.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -9,6 +16,8 @@ import jakarta.persistence.OneToMany;
 
 @Entity
 @Table(name = "properties")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+
 public class Property {
     public enum PropertyStatus {
         DRAFT("DRAFT"),
@@ -35,17 +44,14 @@ public class Property {
     @Enumerated(EnumType.STRING)
     private PropertyStatus status;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "property")
-    private Investment[] investments;
+    private List<Investment> investments;
 
     public Property() {
+        this.investments = new ArrayList<>();
     }
 
-    public Property(Long id, Long price, PropertyStatus status, Long[] investors) {
-        this.id = id;
-        this.price = price;
-        this.status = status;
-    }
 
     public Long getId() {
         return id;
@@ -71,11 +77,11 @@ public class Property {
         this.status = PropertyStatus.valueOf(status);
     }
 
-    public Investment[] getInvestments() {
+    public List<Investment> getInvestments() {
         return investments;
     }
 
-    public void setInvestments(Investment[] investments) {
+    public void setInvestments(List<Investment> investments) {
         this.investments = investments;
     }
 }

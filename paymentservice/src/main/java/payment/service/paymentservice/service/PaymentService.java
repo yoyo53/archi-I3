@@ -41,17 +41,15 @@ public class PaymentService {
         this.kafkaProducer = kafkaProducer;
     }
 
-    public Payment createPayment(Payment payment){
-        payment.setDate(getISOdate());
+    public Payment createPayment(Long userID, Double amount, Long InvestmentID) {
+        Payment payment = new Payment(userID, getISOdate(), amount);
         Payment savedPayment = paymentRepository.save(payment);
 
         //Json Object
         ObjectNode event = new ObjectMapper().createObjectNode();
         event.put(EVENT_TYPE, "PaymentCreated");
-        ObjectNode payload = new ObjectMapper().createObjectNode();
-        payload.put("id", savedPayment.getId());
-        payload.put("userID", savedPayment.getUserID());
-        payload.put("amount", savedPayment.getAmount());
+        ObjectNode payload = new ObjectMapper().convertValue(savedPayment, ObjectNode.class);
+        payload.put("InvestmentID", InvestmentID);
         event.set(PAYLOAD, payload);
 
         kafkaProducer.sendMessage(topic, event);

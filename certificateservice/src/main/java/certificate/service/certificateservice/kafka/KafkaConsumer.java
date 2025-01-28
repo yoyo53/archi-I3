@@ -40,8 +40,8 @@ public class KafkaConsumer {
                     ObjectNode payload = (ObjectNode) message.get(PAYLOAD);
                     Investment investment = new Investment(
                             payload.get("id").asLong(),
-                            payload.get("user").get("userId").asLong(),
-                            payload.get("property").get("propertyId").asLong());
+                            payload.get("user").get("id").asLong(),
+                            payload.get("property").get("id").asLong());
                     certificateService.createInvestment(investment);
                     break;
 

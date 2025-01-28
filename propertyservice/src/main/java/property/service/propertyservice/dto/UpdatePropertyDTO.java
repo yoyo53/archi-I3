@@ -2,12 +2,12 @@ package property.service.propertyservice.dto;
 
 import jakarta.validation.constraints.NotNull;
 
-public class PropertyDTO {
+public class UpdatePropertyDTO {
     
     @NotNull
     private String status;
 
-    public PropertyDTO() {}
+    public UpdatePropertyDTO() {}
 
     public String getStatus() {
         return status;

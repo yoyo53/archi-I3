@@ -48,7 +48,8 @@ public class KafkaConsumer {
                     break;
                 case "InvestmentCreated":
                     Investment investment = objectMapper.convertValue(message.get(PAYLOAD), Investment.class);
-                    propertyService.createInvestment(investment);
+                    Long propertyId = message.get(PAYLOAD).get("property").get("id").asLong();
+                    propertyService.createInvestment(investment, propertyId);
                     break;
                 
     

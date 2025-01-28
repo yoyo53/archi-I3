@@ -10,7 +10,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
-import property.service.propertyservice.dto.PropertyDTO;
+import property.service.propertyservice.dto.CreatePropertyDTO;
+import property.service.propertyservice.dto.UpdatePropertyDTO;
 import property.service.propertyservice.kafka.KafkaProducer;
 import property.service.propertyservice.model.Investment;
 import property.service.propertyservice.model.Property;
@@ -50,18 +51,14 @@ public class PropertyService {
         this.investmentRepository = investmentRepository;
     }
 
-    public Property createProperty (@RequestBody @NotNull @Valid Property property, @NotNull @Valid Long userID) throws Exception{
+    public Property createProperty (@RequestBody @NotNull @Valid CreatePropertyDTO propertyDTO, @NotNull @Valid Long userID) throws Exception{
         User user = userRepository.findById(userID).orElse(null);
         if(user == null || !user.getRole().equals(UserRole.AGENT.getDescription())){
             logger.error("User does not exist or is not an agent");
             throw new Exception("User does not exist or is not an agent");
         }
 
-        if(!property.getStatus().equals(PropertyStatus.DRAFT.getDescription())){
-            logger.error("Property status must be DRAFT when creating a new property");
-            throw new Exception("Property status must be DRAFT when creating a new property");
-        }
-
+        Property property = new Property(propertyDTO);
         Property savedProperty = propertyRepository.save(property);
         
         ObjectNode event = new ObjectMapper().createObjectNode();
@@ -108,7 +105,7 @@ public class PropertyService {
         return propertyRepository.findById(id).get();
     }
 
-    public Property updateProperty(@NotNull @Valid Long id, @NotNull @Valid PropertyDTO propertyDTO, @NotNull @Valid Long userID) throws Exception{
+    public Property updateProperty(@NotNull @Valid Long id, @NotNull @Valid UpdatePropertyDTO propertyDTO, @NotNull @Valid Long userID) throws Exception{
         User user = userRepository.findById(userID).orElse(null);
         if(user == null || !user.getRole().equals(UserRole.AGENT.getDescription())){
             logger.error("User does not exist or is not an agent");
@@ -156,7 +153,9 @@ public class PropertyService {
         return savedUser;
     }
 
-    public Investment createInvestment(@NotNull @Valid Investment investment){
+    public Investment createInvestment(@NotNull @Valid Investment investment, Long propertyId){
+        Property property = propertyRepository.findById(propertyId).orElseThrow();
+        investment.setProperty(property);
         Investment savedInvestment = investmentRepository.save(investment);
         return savedInvestment;
     }
