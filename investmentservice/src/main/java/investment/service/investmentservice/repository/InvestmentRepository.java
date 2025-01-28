@@ -13,7 +13,7 @@ import investment.service.investmentservice.model.Investment;
 public interface InvestmentRepository extends JpaRepository<Investment, Long> {
 
     // Requête corrigée pour utiliser property.id
-    @Query("SELECT SUM(i.amountInvested) FROM Investment i WHERE i.property.id = :propertyID AND i.status = 'PENDING' OR i.status = 'SUCCESS'")
+    @Query("SELECT SUM(i.amountInvested) FROM Investment i WHERE i.property.id = :propertyID AND (i.status = 'PENDING' OR i.status = 'SUCCESS')")
     BigDecimal findTotalInvestedByInvestment_PropertyId(@Param("propertyID") Long propertyID);
 
     // Méthode standard pour trouver les investissements par utilisateur
