@@ -19,9 +19,16 @@ public class Investment {
     @NotNull
     private Long userId;
 
+    @NotNull
     private Long propertyId;
 
     public Investment() {}
+
+    public Investment(Long id, Long userId, Long propertyId) {
+        this.id = id;
+        this.userId = userId;
+        this.propertyId = propertyId;
+    }
 
     public Long getId() {
         return id;

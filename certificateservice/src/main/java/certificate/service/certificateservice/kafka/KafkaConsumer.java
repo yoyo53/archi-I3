@@ -37,7 +37,11 @@ public class KafkaConsumer {
             String eventType = message.get(EVENT_TYPE).asText();
             switch (eventType) {
                 case "InvestmentCreated":
-                    Investment investment = objectMapper.convertValue(message.get(PAYLOAD), Investment.class);
+                    ObjectNode payload = (ObjectNode) message.get(PAYLOAD);
+                    Investment investment = new Investment(
+                            payload.get("id").asLong(),
+                            payload.get("user").get("userId").asLong(),
+                            payload.get("property").get("propertyId").asLong());
                     certificateService.createInvestment(investment);
                     break;
 

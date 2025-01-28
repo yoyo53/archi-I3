@@ -78,8 +78,7 @@ public class CertificateService {
         Certificate certificate = createCertificateFromDTO(certificateDTO);
         Certificate savedCertificate = certificateRepository.save(certificate);
 
-        ObjectNode payload = objectMapper.createObjectNode()
-                .put("id", savedCertificate.getId());
+        ObjectNode payload = objectMapper.convertValue(savedCertificate, ObjectNode.class);
         ObjectNode event = objectMapper.createObjectNode()
                 .put(EVENT_TYPE, "CertificateCreated")
                 .set(PAYLOAD, payload);
