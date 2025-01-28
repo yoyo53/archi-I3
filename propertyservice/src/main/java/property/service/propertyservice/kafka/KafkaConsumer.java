@@ -11,6 +11,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import property.service.propertyservice.model.Investment;
+import property.service.propertyservice.model.User;
+import property.service.propertyservice.model.User.UserRole;
 import property.service.propertyservice.service.PropertyService;
 
 @Service
@@ -19,9 +22,12 @@ public class KafkaConsumer {
     private static Logger logger = LoggerFactory.getLogger(KafkaConsumer.class);
 
     private final PropertyService propertyService;
+    private final ObjectMapper objectMapper;
+    private final String PAYLOAD = "Payload";
 
-    public KafkaConsumer(PropertyService propertyService) {
+    public KafkaConsumer(PropertyService propertyService, ObjectMapper objectMapper) {
         this.propertyService = propertyService;
+        this.objectMapper = objectMapper;
     }
 
     @KafkaListener(topics = "${spring.kafka.topic}", containerFactory = "kafkaListenerContainerFactory")
@@ -34,21 +40,17 @@ public class KafkaConsumer {
     
             switch (eventType) {
                 case "UserCreated":
-                    logger.warn("User created event received");
-                    JsonNode payload = event.get("Payload");
-    
-                    if (payload != null && payload.hasNonNull("role") && payload.hasNonNull("id")) {
-                        String role = payload.get("role").asText();
-                        Long userIdCreated = payload.get("id").asLong();
-    
-                        if ("Agent".equals(role)) {
-                            logger.warn("Adding agent in database");
-                            propertyService.addAgent(userIdCreated);
-                        }
-                    } else {
-                        logger.warn("Invalid payload: missing required fields 'role' or 'id'");
+                    User user = objectMapper.convertValue(message.get(PAYLOAD), User.class);
+                    if (user.getRole().equals(UserRole.AGENT.getDescription())) {
+                        logger.warn("Adding agent in database");
+                        propertyService.createAgent(user);
                     }
                     break;
+                case "InvestmentCreated":
+                    Investment investment = objectMapper.convertValue(message.get(PAYLOAD), Investment.class);
+                    propertyService.createInvestment(investment);
+                    break;
+                
     
                 default:
                     logger.warn("Unknown event received");

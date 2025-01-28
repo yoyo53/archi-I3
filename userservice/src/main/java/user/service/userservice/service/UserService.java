@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import user.service.userservice.kafka.KafkaProducer;
 import user.service.userservice.model.User;
-import user.service.userservice.model.UserCreatedEvent;
+import user.service.userservice.model.User.UserRole;
 import user.service.userservice.repository.UserRepository;
 
 @Service
@@ -37,7 +37,7 @@ public class UserService {
             return "User already exists";
         }
     
-        if (!user.getRole().equals("Investor") && !user.getRole().equals("Agent")) {
+        if (!user.getRole().equals(UserRole.INVESTOR.getDescription()) && !user.getRole().equals(UserRole.AGENT.getDescription())) {
             return "Role must be either Investor or Agent";
         }
 

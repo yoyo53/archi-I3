@@ -1,6 +1,8 @@
 package user.service.userservice.model;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -10,6 +12,21 @@ import jakarta.persistence.Table;
 @Table(name = "users")
 public class User {
 
+    public enum UserRole {
+        AGENT("AGENT"),
+        INVESTOR("INVESTOR");
+    
+        private final String description;
+    
+        UserRole(String description) {
+            this.description = description;
+        }
+    
+        public String getDescription() {
+            return description;
+        }
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -18,7 +35,8 @@ public class User {
 
     private String password;
 
-    private String role;
+    @Enumerated(EnumType.STRING)
+    private UserRole role;
 
     // Constructeurs, getters, setters
     public User() {}
@@ -44,11 +62,11 @@ public class User {
     }
 
     public String getRole() {
-        return role;
+        return role.getDescription();
     }
 
     public void setRole(String role) {
-        this.role = role;
+        this.role = UserRole.valueOf(role);
     }
 
 }
