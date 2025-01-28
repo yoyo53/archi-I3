@@ -45,27 +45,32 @@ public class KafkaConsumer {
             switch (eventType) {
                 case "UserCreated":
                     User user = objectMapper.convertValue(message.get(PAYLOAD), User.class);
-                    investmentService.createUser(user);
+                    User usercreated = investmentService.createUser(user);
+                    System.out.println(usercreated);
                     break;
                 
                 case "PropertyCreated":
                     Property property = objectMapper.convertValue(message.get(PAYLOAD), Property.class);
-                    investmentService.createProperty(property);
+                    Property propertycreated = investmentService.createProperty(property);
+                    System.out.println(propertycreated);
                     break;
 
                 case "PropertyUpdated":
                     Property propertyUpdated = objectMapper.convertValue(message.get(PAYLOAD), Property.class);
-                    investmentService.updatePropertyStatus(propertyUpdated);
+                    Property propertyupdatednew = investmentService.updatePropertyStatus(propertyUpdated);
+                    System.out.println(propertyupdatednew);
                     break;
 
                 case "PaymentCreated":
                     Payment payment = objectMapper.convertValue(message.get(PAYLOAD), Payment.class);
-                    investmentService.createPayment(payment);
+                    Payment paymentcreated = investmentService.createPayment(payment);
+                    System.out.println(paymentcreated);
                     break;
                 
                 case "CertificatCreated":
                     Certificat certificat = objectMapper.convertValue(message.get(PAYLOAD), Certificat.class);
-                    investmentService.createCertificat(certificat);
+                    Certificat certificatcreated = investmentService.createCertificat(certificat);
+                    System.out.println(certificatcreated);
                     break;
 
                 default:
