@@ -8,8 +8,6 @@ import org.springframework.web.bind.annotation.*;
 
 import investment.service.investmentservice.model.Investment;
 import investment.service.investmentservice.service.InvestmentService;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.Valid;
 import investment.service.investmentservice.dto.InvestmentDTO;
 
 @RestController
