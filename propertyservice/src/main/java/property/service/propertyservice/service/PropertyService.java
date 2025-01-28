@@ -153,6 +153,25 @@ public class PropertyService {
         return savedUser;
     }
 
+    public Investment updateInvestmentStatus(@NotNull @Valid Investment investment, String status){
+        investment.setStatus(status);
+        Investment updatedInvestment = investmentRepository.save(investment);
+
+        Double totalInvested = propertyRepository.sumInvestedAmountById(investment.getProperty().getId());
+        if(totalInvested >= updatedInvestment.getProperty().getPrice()){
+            investment.getProperty().setStatus(PropertyStatus.FUNDED.getDescription());
+            propertyRepository.save(investment.getProperty());
+
+            ObjectNode event = new ObjectMapper().createObjectNode();
+            event.put(EVENT_TYPE, "PropertyFunded");
+            ObjectNode payload = new ObjectMapper().convertValue(updatedInvestment.getProperty(), ObjectNode.class);
+            event.set(PAYLOAD, payload);
+
+            kafkaProducer.sendMessage(topic, event);
+        }
+        return updatedInvestment;
+    }
+
     public Investment createInvestment(@NotNull @Valid Investment investment, Long propertyId){
         Property property = propertyRepository.findById(propertyId).orElseThrow();
         investment.setProperty(property);

@@ -1,20 +1,20 @@
 package wallet.service.walletservice.controller;
 
-import java.net.URI;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
+import wallet.service.walletservice.model.Wallet;
 import wallet.service.walletservice.service.WalletService;
 
 @RestController
-@RequestMapping("/wallets")
+@RequestMapping("/api/wallets")
 public class WalletController {
 
     private final WalletService walletService;
@@ -24,51 +24,41 @@ public class WalletController {
         this.walletService = walletService;
     }
 
-    @PostMapping("/deposit")
-    public ResponseEntity<String> deposit(@RequestBody ObjectNode request) {
-        Long userId;
-        Double amount;
+    @PostMapping("/deposit/{amount}")
+    public ResponseEntity<String> deposit(@PathVariable Double amount ,@RequestHeader("Authorization") Long userID) {
         try {
-            userId = request.get("userId").asLong();
-            amount = request.get("amount").asDouble();
-        }
-        catch (ClassCastException e) {
-            return ResponseEntity.badRequest().body("Wallet deposit : Invalid input types");
-        }
-
-        try {
-            walletService.deposit(userId, amount);
-            
-            URI location = URI.create(String.format("/wallets/deposit/%d", userId));
-            return ResponseEntity.created(location).body("Wallet deposit : Success");
+            walletService.deposit(userID, amount);
+            return ResponseEntity.ok().build();
         }
         catch (Exception e) {
-            return ResponseEntity.badRequest().body("Wallet deposit : " + e.getMessage());
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
+
     }
 
-    @PostMapping("/withdraw")
-    public ResponseEntity<String> withdraw(@RequestBody ObjectNode request) {
-        Long userId;
-        Double amount;
+    @PostMapping("/withdraw/{amount}")
+    public ResponseEntity<String> withdraw(@PathVariable Double amount ,@RequestHeader("Authorization") Long userID) {
         try {
-            userId = request.get("userId").asLong();
-            amount = request.get("amount").asDouble();
-        }
-        catch (ClassCastException e) {
-            return ResponseEntity.badRequest().body("Wallet deposit : Invalid input types");
-        }
-
-        try {
-            walletService.withdraw(userId, amount);
-            
-            URI location = URI.create(String.format("/wallets/withdraw/%d", userId));
-            return ResponseEntity.created(location).body("Wallet withdraw : Success");
+            walletService.withdraw(userID, amount);
+            return ResponseEntity.ok().build();
         }
         catch (Exception e) {
-            return ResponseEntity.badRequest().body("Wallet withdraw : " + e.getMessage());
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
 
+    }
 
+    @GetMapping("/me")
+    public ResponseEntity<Object> getWallet(@RequestHeader("Authorization") Long userID) {
+        try {
+            Wallet wallet = walletService.getWallet(userID);
+            if(wallet == null){
+                return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.ok().body(wallet);
+        }
+        catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 }

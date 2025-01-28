@@ -51,7 +51,14 @@ public class KafkaConsumer {
                     Long propertyId = message.get(PAYLOAD).get("property").get("id").asLong();
                     propertyService.createInvestment(investment, propertyId);
                     break;
-                
+                case "InvestmentSuccessful":
+                    Investment investmentSuccess = objectMapper.convertValue(message.get(PAYLOAD), Investment.class);
+                    propertyService.updateInvestmentStatus(investmentSuccess, "SUCCESS");
+                    break;
+                case "InvestmentFailed":
+                    Investment investmentFailed = objectMapper.convertValue(message.get(PAYLOAD), Investment.class);
+                    propertyService.updateInvestmentStatus(investmentFailed, "FAILED");
+                    break;
     
                 default:
                     logger.warn("Unknown event received");

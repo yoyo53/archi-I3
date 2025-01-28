@@ -5,6 +5,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import java.math.BigDecimal;
+import java.util.Optional;
 
 import investment.service.investmentservice.model.Investment;
 
@@ -12,7 +13,7 @@ import investment.service.investmentservice.model.Investment;
 public interface InvestmentRepository extends JpaRepository<Investment, Long> {
 
     // Requête corrigée pour utiliser property.id
-    @Query("SELECT SUM(i.amountInvested) FROM Investment i WHERE i.property.id = :propertyID")
+    @Query("SELECT SUM(i.amountInvested) FROM Investment i WHERE i.property.id = :propertyID AND i.status = 'PENDING' OR i.status = 'SUCCESS'")
     BigDecimal findTotalInvestedByInvestment_PropertyId(@Param("propertyID") Long propertyID);
 
     // Méthode standard pour trouver les investissements par utilisateur
@@ -21,4 +22,6 @@ public interface InvestmentRepository extends JpaRepository<Investment, Long> {
     // Requête corrigée pour utiliser user.id
     @Query("SELECT SUM(i.amountInvested) FROM Investment i WHERE i.user.id = :userId")
     BigDecimal findInvestmentTotalByInvestment_UserId(@Param("userId") Long userId);
+
+    Optional<Investment> findByPayment_id (Long paymentId);
 }

@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import payment.service.paymentservice.model.Payment;
+import payment.service.paymentservice.model.Payment.PaymentStatus;
 import payment.service.paymentservice.service.PaymentService;
 
 @Service
@@ -37,10 +38,18 @@ public class KafkaConsumer {
             String eventType = message.get(EVENT_TYPE).asText();
             switch (eventType) {
                 case "InvestmentCreated":
-                    ObjectNode payload = (ObjectNode) message.get(PAYLOAD);
-                    paymentService.createPayment(payload.get("user").get("id").asLong(),
-                            payload.get("amountInvested").asDouble(), 
-                            payload.get("id").asLong());
+                    ObjectNode investmentPayload = (ObjectNode) message.get(PAYLOAD);
+                    paymentService.createPayment(investmentPayload.get("user").get("id").asLong(),
+                            investmentPayload.get("amountInvested").asDouble(), 
+                            investmentPayload.get("id").asLong());
+                    break;
+                case "WalletOperationSuccessful":
+                    ObjectNode walletSuccessPayload = (ObjectNode) message.get(PAYLOAD);
+                    paymentService.updatePaymentStatus(walletSuccessPayload.get("paymentId").asLong(), PaymentStatus.SUCCESS.getDescription());
+                    break;
+                case "WalletOperationFailed":
+                    ObjectNode walletFailedPayload = (ObjectNode) message.get(PAYLOAD);
+                    paymentService.updatePaymentStatus(walletFailedPayload.get("paymentId").asLong(), PaymentStatus.FAILED.getDescription());
                     break;
 
                 default:

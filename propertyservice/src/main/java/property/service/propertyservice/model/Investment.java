@@ -19,7 +19,9 @@ public class Investment {
     public enum InvestmentStatus {
         PENDING("PENDING"),
         SUCCESS("SUCCESS"),
-        FAILED("FAILED");
+        FAILED("FAILED"),
+        CANCELED("CANCELED"),
+        COMPLETED("COMPLETED");
     
         private final String description;
     

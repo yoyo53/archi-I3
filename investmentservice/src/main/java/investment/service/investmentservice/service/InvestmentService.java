@@ -19,10 +19,12 @@ import investment.service.investmentservice.dto.InvestmentDTO;
 
 // Investment
 import investment.service.investmentservice.model.Investment;
+import investment.service.investmentservice.model.Investment.InvestmentStatus;
 import investment.service.investmentservice.repository.InvestmentRepository;
 
 // User
 import investment.service.investmentservice.model.User;
+import investment.service.investmentservice.model.Payment.PaymentStatus;
 import investment.service.investmentservice.model.User.UserRole;
 import investment.service.investmentservice.model.Property.PropertyStatus;
 import investment.service.investmentservice.repository.UserRepository;
@@ -156,6 +158,27 @@ public class InvestmentService {
     public Certificat createCertificat(Certificat certificat) {
         Certificat savedCertificat = certificatRepository.save(certificat);
         return savedCertificat;
+    }
+
+    public Payment updatePaymentStatus(Payment payment) {
+        Payment updatedPayment = paymentRepository.save(payment);
+        
+        Investment updatedInvestment = investmentRepository.findByPayment_id(updatedPayment.getId()).orElseThrow();
+
+        ObjectNode event = new ObjectMapper().createObjectNode();
+        if(payment.getStatus().equals(PaymentStatus.SUCCESS.getDescription())){
+            updatedInvestment.setStatus(InvestmentStatus.SUCCESS.getDescription());
+            event.put(EVENT_TYPE, "InvestmentSuccessful");
+
+        }else{
+            updatedInvestment.setStatus(InvestmentStatus.FAILED.getDescription());
+            event.put(EVENT_TYPE, "InvestmentFailed");
+        }
+
+        ObjectNode payload = new ObjectMapper().convertValue(updatedInvestment, ObjectNode.class);
+        event.set(PAYLOAD, payload);
+
+        return updatedPayment;
     }
 
     private String getISOdate() {
