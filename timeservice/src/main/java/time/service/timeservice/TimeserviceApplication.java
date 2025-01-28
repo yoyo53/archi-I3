@@ -6,13 +6,13 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import io.github.cdimascio.dotenv.Dotenv;
 
 @SpringBootApplication
-public class timeserviceApplication {
+public class TimeserviceApplication {
 
     public static void main(String[] args) {
         Dotenv dotenv = Dotenv.configure().directory("./").ignoreIfMissing().load();
         dotenv.entries().forEach(entry -> System.setProperty(entry.getKey(), entry.getValue()));
 
-        SpringApplication.run(timeserviceApplication.class, args);
+        SpringApplication.run(TimeserviceApplication.class, args);
     }
 
 }

@@ -6,9 +6,7 @@ import org.springframework.web.bind.annotation.*;
 
 // import time.service.timeservice.model.time;
 import time.service.timeservice.service.timeService;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.Valid;
-import time.service.timeservice.dto.timeDTO;
+import time.service.timeservice.dto.TimeDTO;
 
 @RestController
 @RequestMapping("/api/times")
@@ -21,8 +19,8 @@ public class timeController {
         this.timeService = timeService;
     }
 
-    @GetMapping
-    public ResponseEntity<String> pingtimeforeveryservice() {
+    @PostMapping
+    public ResponseEntity<String> pingtimeforeveryservice(@RequestBody TimeDTO TimeDTO, @RequestHeader("Authorization") Long userID) {
         return ResponseEntity.ok("time service is up");
     }
 }
