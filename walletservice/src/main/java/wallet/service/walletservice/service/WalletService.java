@@ -19,32 +19,125 @@ public class WalletService {
 
     private final WalletRepository walletRepository;
     private final KafkaProducer kafkaProducer;
+    private final ObjectMapper objectMapper;
 
     private final String EVENT_TYPE = "EventType";
     private final String PAYLOAD = "Payload";
 
     @Autowired
-    public WalletService(WalletRepository walletRepository, KafkaProducer kafkaProducer) {
+    public WalletService(WalletRepository walletRepository, KafkaProducer kafkaProducer, ObjectMapper objectMapper) {
         this.walletRepository = walletRepository;
         this.kafkaProducer = kafkaProducer;
+        this.objectMapper = objectMapper;
     }
 
-    public String createWallet(Wallet wallet) {
-        if (walletRepository.findByUserId(wallet.getUserId()) != null) {
-            return "Wallet already exists";
+    public boolean createWallet(Long userId) {
+        if (walletRepository.findByUserId(userId) != null) {
+            ObjectNode payload = objectMapper.createObjectNode()
+                .put("walletId", walletRepository.findByUserId(userId).getId())
+                .put("userId", userId);
+            ObjectNode event = objectMapper.createObjectNode()
+                .put(EVENT_TYPE, "WalletAlreadyExists")
+                .set(PAYLOAD, payload);
+            kafkaProducer.sendMessage(topic, event);
+
+            return false;
         } 
         else {
+            Wallet wallet = new Wallet(userId);
             Wallet savedWallet = walletRepository.save(wallet);
-            
-            //Json Object
-            ObjectNode event = new ObjectMapper().createObjectNode();
-            event.put(EVENT_TYPE, "WalletCreated");
-            ObjectNode payload = new ObjectMapper().createObjectNode();
-            payload.put("id", savedWallet.getId());
-            event.set(PAYLOAD, payload);
 
+            ObjectNode payload = objectMapper.createObjectNode()
+                .put("walletId", savedWallet.getId())
+                .put("userId", savedWallet.getUserId());
+            ObjectNode event = objectMapper.createObjectNode()
+                .put(EVENT_TYPE, "WalletCreated")
+                .set(PAYLOAD, payload);
             kafkaProducer.sendMessage(topic, event);
-            return "Wallet created successfully";
+
+            return true;
+        }
+    }
+
+    public void deposit(Long userId, Double amount) {
+        if (walletRepository.findByUserId(userId) != null) {
+            amount = Math.abs(amount);
+
+            Wallet wallet = walletRepository.findByUserId(userId);
+            wallet.setBalance(wallet.getBalance() + amount);
+            walletRepository.save(wallet);
+        }
+        else {
+            throw new IllegalArgumentException("Wallet does not exist");
+        }
+    }
+
+    public void withdraw(Long userId, Double amount) {
+        if(walletRepository.findByUserId(userId) != null) {
+            amount = Math.abs(amount);
+
+            Wallet wallet = walletRepository.findByUserId(userId);
+            if (wallet.getBalance() < amount) {
+                throw new IllegalArgumentException("Insufficient funds");
+            }
+            wallet.setBalance(wallet.getBalance() - amount);
+            walletRepository.save(wallet);
+        }
+        else {
+            throw new IllegalArgumentException("Wallet does not exist");
+        }
+    }
+
+    public void processPayment(Long userId, Double amount, Long paymentId) {
+        if (amount < 0) {
+            try {
+                withdraw(userId, -amount);
+
+                ObjectNode payload = objectMapper.createObjectNode()
+                    .put("paymentId", paymentId)
+                    .put("userId", userId)
+                    .put("amount", amount);
+                ObjectNode event = objectMapper.createObjectNode()
+                    .put(EVENT_TYPE, "WithdrawalSuccessful")
+                    .set(PAYLOAD, payload);
+                    kafkaProducer.sendMessage(topic, event);
+            }
+            catch (IllegalArgumentException e) {
+                ObjectNode payload = objectMapper.createObjectNode()
+                    .put("userId", userId)
+                    .put("amount", amount)
+                    .put("paymentId", paymentId)
+                    .put("reason", e.getMessage());
+                ObjectNode event = objectMapper.createObjectNode()
+                    .put(EVENT_TYPE, "WithdrawalFailed")
+                    .set(PAYLOAD, payload);
+                kafkaProducer.sendMessage(topic, event);
+            }
+        }
+        else if (amount > 0) {
+            try {
+                deposit(userId, amount);
+
+                ObjectNode payload = objectMapper.createObjectNode()
+                    .put("paymentId", paymentId)
+                    .put("userId", userId)
+                    .put("amount", amount);
+                ObjectNode event = objectMapper.createObjectNode()
+                    .put(EVENT_TYPE, "DepositSuccessful")
+                    .set(PAYLOAD, payload);
+                kafkaProducer.sendMessage(topic, event);
+            }
+            catch (IllegalArgumentException e) {
+                ObjectNode payload = objectMapper.createObjectNode()
+                    .put("userId", userId)
+                    .put("amount", amount)
+                    .put("paymentId", paymentId)
+                    .put("reason", e.getMessage());
+                ObjectNode event = objectMapper.createObjectNode()
+                    .put(EVENT_TYPE, "DepositFailed")
+                    .set(PAYLOAD, payload);
+                kafkaProducer.sendMessage(topic, event);
+            }
         }
     }
 }
