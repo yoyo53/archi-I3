@@ -149,3 +149,24 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+
+  time-service:
+    container_name: time-service
+    depends_on:
+      kafka-service:
+        condition: service_healthy
+    build: timeservice
+    ports:
+      - "8088:8088"
+    env_file:
+      - timeservice/.env
+    environment:
+      - LOCAL_TIMEZONE=Europe/Paris
+      - SERVER_PORT=8088
+      - SPRING_KAFKA_URL=kafka-service:9092
+      - LOGGING_LEVEL_ROOT=WARN
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "8088"]
+      interval: 10s
+      timeout: 5s
+      retries: 5

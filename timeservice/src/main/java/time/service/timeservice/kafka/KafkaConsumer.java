@@ -1,4 +1,4 @@
-package investment.service.investmentservice.kafka;
+package time.service.timeservice.kafka;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,13 +10,13 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 // Model
-import investment.service.investmentservice.model.User;
-import investment.service.investmentservice.model.Property;
-import investment.service.investmentservice.model.Payment;
-import investment.service.investmentservice.model.Certificat;
+// import time.service.timeservice.model.User;
+// import time.service.timeservice.model.Property;
+// import time.service.timeservice.model.Payment;
+// import time.service.timeservice.model.Certificat;
 
 // Service
-import investment.service.investmentservice.service.InvestmentService;
+import time.service.timeservice.service.timeService;
 
 @Service
 public class KafkaConsumer {
@@ -24,15 +24,15 @@ public class KafkaConsumer {
     private static Logger logger = LoggerFactory.getLogger(KafkaConsumer.class);
 
     private final ObjectMapper objectMapper; // = new ObjectMapper();
-    private final InvestmentService investmentService; // = new InvestmentService();
+    private final timeService timeService; // = new timeService();
 
     private final String EVENT_TYPE = "EventType";
     private final String PAYLOAD = "Payload";
 
     @Autowired
-    public KafkaConsumer(ObjectMapper objectMapper, InvestmentService investmentService) {
+    public KafkaConsumer(ObjectMapper objectMapper, timeService timeService) {
         this.objectMapper = objectMapper;
-        this.investmentService = investmentService;
+        this.timeService = timeService;
     }
     
 
@@ -45,31 +45,31 @@ public class KafkaConsumer {
             switch (eventType) {
                 case "UserCreated":
                     User user = objectMapper.convertValue(message.get(PAYLOAD), User.class);
-                    User usercreated = investmentService.createUser(user);
+                    User usercreated = timeService.createUser(user);
                     System.out.println(usercreated);
                     break;
                 
                 case "PropertyCreated":
                     Property property = objectMapper.convertValue(message.get(PAYLOAD), Property.class);
-                    Property propertycreated = investmentService.createProperty(property);
+                    Property propertycreated = timeService.createProperty(property);
                     System.out.println(propertycreated);
                     break;
 
                 case "PropertyUpdated":
                     Property propertyUpdated = objectMapper.convertValue(message.get(PAYLOAD), Property.class);
-                    Property propertyupdatednew = investmentService.updatePropertyStatus(propertyUpdated);
+                    Property propertyupdatednew = timeService.updatePropertyStatus(propertyUpdated);
                     System.out.println(propertyupdatednew);
                     break;
 
                 case "PaymentCreated":
                     Payment payment = objectMapper.convertValue(message.get(PAYLOAD), Payment.class);
-                    Payment paymentcreated = investmentService.createPayment(payment);
+                    Payment paymentcreated = timeService.createPayment(payment);
                     System.out.println(paymentcreated);
                     break;
                 
                 case "CertificatCreated":
                     Certificat certificat = objectMapper.convertValue(message.get(PAYLOAD), Certificat.class);
-                    Certificat certificatcreated = investmentService.createCertificat(certificat);
+                    Certificat certificatcreated = timeService.createCertificat(certificat);
                     System.out.println(certificatcreated);
                     break;
 
