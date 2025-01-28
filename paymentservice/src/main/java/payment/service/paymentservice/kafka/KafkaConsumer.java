@@ -6,10 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import payment.service.paymentservice.model.Payment;
 import payment.service.paymentservice.model.Payment.PaymentStatus;
 import payment.service.paymentservice.service.PaymentService;
 
@@ -18,15 +16,13 @@ public class KafkaConsumer {
 
     private static Logger logger = LoggerFactory.getLogger(KafkaConsumer.class);
 
-    private final ObjectMapper objectMapper;
     private final PaymentService paymentService;
 
     private final String EVENT_TYPE = "EventType";
     private final String PAYLOAD = "Payload";
 
     @Autowired
-    public KafkaConsumer(ObjectMapper objectMapper, PaymentService paymentService) {
-        this.objectMapper = objectMapper;
+    public KafkaConsumer(PaymentService paymentService) {
         this.paymentService = paymentService;
     }
 
@@ -50,6 +46,15 @@ public class KafkaConsumer {
                 case "WalletOperationFailed":
                     ObjectNode walletFailedPayload = (ObjectNode) message.get(PAYLOAD);
                     paymentService.updatePaymentStatus(walletFailedPayload.get("paymentId").asLong(), PaymentStatus.FAILED.getDescription());
+                    break;
+
+                case "TimeEvent":
+                    ObjectNode payloadTime = (ObjectNode) message.get(PAYLOAD);
+                    if (payloadTime.has("default_date")) {
+                        paymentService.setDefaultDate(payloadTime.get("default_date").asText());
+                    } else if (payloadTime.has("date")) {
+                        paymentService.changeDate(payloadTime.get("date").asText());
+                    }
                     break;
 
                 default:

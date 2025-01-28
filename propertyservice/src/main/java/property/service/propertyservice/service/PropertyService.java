@@ -1,5 +1,8 @@
 package property.service.propertyservice.service;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -14,6 +17,7 @@ import property.service.propertyservice.dto.CreatePropertyDTO;
 import property.service.propertyservice.dto.UpdatePropertyDTO;
 import property.service.propertyservice.kafka.KafkaProducer;
 import property.service.propertyservice.model.Investment;
+import property.service.propertyservice.model.Investment.InvestmentStatus;
 import property.service.propertyservice.model.Property;
 import property.service.propertyservice.model.User;
 import property.service.propertyservice.model.User.UserRole;
@@ -41,6 +45,8 @@ public class PropertyService {
     private final String PROPEERTY_DELETED_EVENT = "PropertyDeleted";
     private final String PROPERTY_UPDATED_EVENT = "PropertyUpdated";
 
+    private LocalDate systemDate;
+
     private static final Logger logger = LoggerFactory.getLogger(PropertyService.class);
 
     @Autowired
@@ -49,6 +55,7 @@ public class PropertyService {
         this.kafkaProducer = kafkaProducer;
         this.userRepository = userRepository;
         this.investmentRepository = investmentRepository;
+        this.systemDate = null;
     }
 
     public Property createProperty (@RequestBody @NotNull @Valid CreatePropertyDTO propertyDTO, @NotNull @Valid Long userID) throws Exception{
@@ -153,21 +160,23 @@ public class PropertyService {
         return savedUser;
     }
 
-    public Investment updateInvestmentStatus(@NotNull @Valid Investment investment, String status){
-        investment.setStatus(status);
+    public Investment updateInvestmentStatus(@NotNull @Valid Investment investment, Long propertyId){
         Investment updatedInvestment = investmentRepository.save(investment);
 
-        Double totalInvested = propertyRepository.sumInvestedAmountById(investment.getProperty().getId());
-        if(totalInvested >= updatedInvestment.getProperty().getPrice()){
-            investment.getProperty().setStatus(PropertyStatus.FUNDED.getDescription());
-            propertyRepository.save(investment.getProperty());
+        if (updatedInvestment.getStatus().equals(InvestmentStatus.SUCCESS.getDescription())) {
+            Property property = propertyRepository.findById(propertyId).orElseThrow();
+            Double totalInvested = propertyRepository.sumInvestedAmountById(propertyId);
+            if(totalInvested >= property.getPrice()){
+                property.setStatus(PropertyStatus.FUNDED.getDescription());
+                Property updatedProperty =  propertyRepository.save(property);
 
-            ObjectNode event = new ObjectMapper().createObjectNode();
-            event.put(EVENT_TYPE, "PropertyFunded");
-            ObjectNode payload = new ObjectMapper().convertValue(updatedInvestment.getProperty(), ObjectNode.class);
-            event.set(PAYLOAD, payload);
+                ObjectNode event = new ObjectMapper().createObjectNode();
+                event.put(EVENT_TYPE, "PropertyFunded");
+                ObjectNode payload = new ObjectMapper().convertValue(updatedProperty, ObjectNode.class);
+                event.set(PAYLOAD, payload);
 
-            kafkaProducer.sendMessage(topic, event);
+                kafkaProducer.sendMessage(topic, event);
+            }
         }
         return updatedInvestment;
     }
@@ -177,6 +186,19 @@ public class PropertyService {
         investment.setProperty(property);
         Investment savedInvestment = investmentRepository.save(investment);
         return savedInvestment;
+    }
+
+    public void setDefaultDate(String defaultDate) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate date = LocalDate.parse(defaultDate, formatter);
+        this.systemDate = date;
+    }
+
+    public void changeDate(String date) {
+        // Add logic when date changed
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate newDate = LocalDate.parse(date, formatter);
+        this.systemDate = newDate;
     }
 
 }

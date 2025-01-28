@@ -23,5 +23,7 @@ public interface InvestmentRepository extends JpaRepository<Investment, Long> {
     @Query("SELECT SUM(i.amountInvested) FROM Investment i WHERE i.user.id = :userId")
     BigDecimal findInvestmentTotalByInvestment_UserId(@Param("userId") Long userId);
 
-    Optional<Investment> findByPayment_id (Long paymentId);
+    Optional<Investment> findByPayment_id(Long paymentId);
+
+    Optional<Iterable<Investment>> findByProperty_id(Long propertyId);
 }

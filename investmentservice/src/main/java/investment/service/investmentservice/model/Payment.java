@@ -1,7 +1,11 @@
 package investment.service.investmentservice.model;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.OneToOne;
@@ -29,8 +33,10 @@ public class Payment {
     @Id
     private Long id;
 
+    @Enumerated(EnumType.STRING)
     private PaymentStatus status;
 
+    @JsonIgnore
     @OneToOne(mappedBy = "payment")
     private Investment investment;
 

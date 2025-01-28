@@ -24,7 +24,7 @@ public class Investment {
         PENDING("PENDING"),
         SUCCESS("SUCCESS"),
         FAILED("FAILED"),
-        CANCELED("CANCELED"),
+        CANCELLED("CANCELLED"),
         COMPLETED("COMPLETED");
     
         private final String description;

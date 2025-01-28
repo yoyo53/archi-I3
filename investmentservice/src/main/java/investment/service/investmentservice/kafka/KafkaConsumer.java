@@ -45,37 +45,44 @@ public class KafkaConsumer {
             switch (eventType) {
                 case "UserCreated":
                     User user = objectMapper.convertValue(message.get(PAYLOAD), User.class);
-                    User usercreated = investmentService.createUser(user);
+                    investmentService.createUser(user);
                     break;
                 
                 case "PropertyCreated":
                     Property property = objectMapper.convertValue(message.get(PAYLOAD), Property.class);
-                    Property propertycreated = investmentService.createProperty(property);
-                    break;
-
-                case "PropertyUpdated":
-                    Property propertyUpdated = objectMapper.convertValue(message.get(PAYLOAD), Property.class);
-                    Property propertyupdatednew = investmentService.updatePropertyStatus(propertyUpdated);
+                    investmentService.createProperty(property);
                     break;
 
                 case "PaymentCreated":
                     Payment payment = objectMapper.convertValue(message.get(PAYLOAD), Payment.class);
-                    Payment paymentcreated = investmentService.createPayment(payment);
+                    Long InvestmentId = message.get(PAYLOAD).get("InvestmentID").asLong();
+                    investmentService.createPayment(payment, InvestmentId);
                     break;
                 
                 case "CertificatCreated":
                     Certificat certificat = objectMapper.convertValue(message.get(PAYLOAD), Certificat.class);
-                    Certificat certificatcreated = investmentService.createCertificat(certificat);
+                    investmentService.createCertificat(certificat);
                     break;
 
                 case "PaymentSuccessful":
-                    Payment paymentSuccessful = objectMapper.convertValue(message.get(PAYLOAD), Payment.class);
-                    Payment paymentSuccessfulnew = investmentService.updatePaymentStatus(paymentSuccessful);
-                    break;
                 case "PaymentFailed":
-                    Payment paymentFailed = objectMapper.convertValue(message.get(PAYLOAD), Payment.class);
-                    Payment paymentFailednew = investmentService.updatePaymentStatus(paymentFailed);
+                    Payment paymentUpdated = objectMapper.convertValue(message.get(PAYLOAD), Payment.class);
+                    investmentService.updatePaymentStatus(paymentUpdated);
                     break;
+                case "PropertyUpdated":
+                case "PropertyFunded":
+                    Property propertyUpdated = objectMapper.convertValue(message.get(PAYLOAD), Property.class);
+                    investmentService.updatePropertyStatus(propertyUpdated);
+                    break;
+                case "TimeEvent":
+                    ObjectNode payloadTime = (ObjectNode) message.get(PAYLOAD);
+                    if (payloadTime.has("default_date")) {
+                        investmentService.setDefaultDate(payloadTime.get("default_date").asText());
+                    } else if (payloadTime.has("date")) {
+                        investmentService.changeDate(payloadTime.get("date").asText());
+                    }
+                    break;
+
                 default:
                     break;
             }

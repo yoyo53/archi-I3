@@ -14,6 +14,8 @@ import payment.service.paymentservice.repository.PaymentRepository;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.TimeZone;
 
@@ -31,6 +33,8 @@ public class PaymentService {
     private final String EVENT_TYPE = "EventType";
     private final String PAYLOAD = "Payload";
 
+    private LocalDate systemDate;
+
     private static final Logger logger = LoggerFactory.getLogger(PaymentService.class);
     
     @Value("${spring.application.timezone}")
@@ -40,6 +44,7 @@ public class PaymentService {
     public PaymentService(PaymentRepository paymentRepository, KafkaProducer kafkaProducer) {
         this.paymentRepository = paymentRepository;
         this.kafkaProducer = kafkaProducer;
+        this.systemDate = null;
     }
 
     public Payment createPayment(Long userID, Double amount, Long InvestmentID) {
@@ -92,5 +97,18 @@ public class PaymentService {
         df.setTimeZone(tz);
         return df.format(new Date());
 
+    }
+
+    public void setDefaultDate(String defaultDate) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate date = LocalDate.parse(defaultDate, formatter);
+        this.systemDate = date;
+    }
+
+    public void changeDate(String date) {
+        // Add logic when date changed
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate newDate = LocalDate.parse(date, formatter);
+        this.systemDate = newDate;
     }
 }

@@ -3,6 +3,8 @@ package investment.service.investmentservice.service;
 import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.TimeZone;
 
@@ -62,6 +64,8 @@ public class InvestmentService {
     private final String EVENT_TYPE = "EventType";
     private final String PAYLOAD = "Payload";
 
+    private LocalDate systemDate;
+
     @Value("${spring.application.timezone}")
     private String timeZone;
 
@@ -73,12 +77,13 @@ public class InvestmentService {
         this.paymentRepository = paymentRepository;
         this.certificatRepository = certificatRepository;
         this.kafkaProducer = kafkaProducer;
+        this.systemDate = null;
     }
 
     // Investment
     public Investment createInvestment(@NotNull @Valid InvestmentDTO investmentDTO, @NotNull Long userID) {
-        if (investmentDTO.getAmount() <= 500) {
-            throw new IllegalArgumentException("Investment amount must be greater than zero");
+        if (investmentDTO.getAmount() < 500) {
+            throw new IllegalArgumentException("Investment amount must be at least 500");
         }
 
         User user = userRepository.findById(userID).orElseThrow();
@@ -145,12 +150,30 @@ public class InvestmentService {
 
     public Property updatePropertyStatus(Property property) {
         Property updatedProperty = propertyRepository.save(property);
+
+        if (property.getStatus().equals(PropertyStatus.FUNDED.getDescription())) {
+            Iterable<Investment> investments = investmentRepository.findByProperty_id(property.getId()).orElseThrow();
+            for (Investment investment : investments) {
+                investment.setStatus(InvestmentStatus.COMPLETED.getDescription());
+                investmentRepository.save(investment);
+
+                ObjectNode event = new ObjectMapper().createObjectNode();
+                event.put(EVENT_TYPE, "InvestmentCompleted");
+                ObjectNode payload = new ObjectMapper().convertValue(investment, ObjectNode.class);
+                event.set(PAYLOAD, payload);
+
+                kafkaProducer.sendMessage(topic, event);
+            }
+        }
         return updatedProperty;
     }
 
     // Payment
-    public Payment createPayment(Payment payment) {
+    public Payment createPayment(Payment payment, Long investmentID) {
+        Investment investment = investmentRepository.findById(investmentID).orElseThrow();
         Payment savedPayment = paymentRepository.save(payment);
+        investment.setPayment(savedPayment);
+        investmentRepository.save(investment);
         return savedPayment;
     }
 
@@ -163,20 +186,23 @@ public class InvestmentService {
     public Payment updatePaymentStatus(Payment payment) {
         Payment updatedPayment = paymentRepository.save(payment);
         
-        Investment updatedInvestment = investmentRepository.findByPayment_id(updatedPayment.getId()).orElseThrow();
+        Investment investment = investmentRepository.findByPayment_id(payment.getId()).orElseThrow();
 
         ObjectNode event = new ObjectMapper().createObjectNode();
         if(payment.getStatus().equals(PaymentStatus.SUCCESS.getDescription())){
-            updatedInvestment.setStatus(InvestmentStatus.SUCCESS.getDescription());
+            investment.setStatus(InvestmentStatus.SUCCESS.getDescription());
             event.put(EVENT_TYPE, "InvestmentSuccessful");
 
         }else{
-            updatedInvestment.setStatus(InvestmentStatus.FAILED.getDescription());
+            investment.setStatus(InvestmentStatus.FAILED.getDescription());
             event.put(EVENT_TYPE, "InvestmentFailed");
         }
 
+        Investment updatedInvestment = investmentRepository.save(investment);
         ObjectNode payload = new ObjectMapper().convertValue(updatedInvestment, ObjectNode.class);
         event.set(PAYLOAD, payload);
+
+        kafkaProducer.sendMessage(topic, event);
 
         return updatedPayment;
     }
@@ -187,5 +213,17 @@ public class InvestmentService {
         df.setTimeZone(tz);
         return df.format(new Date());
 
+    }
+    public void setDefaultDate(String defaultDate) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate date = LocalDate.parse(defaultDate, formatter);
+        this.systemDate = date;
+    }
+
+    public void changeDate(String date) {
+        // Add logic when date changed
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate newDate = LocalDate.parse(date, formatter);
+        this.systemDate = newDate;
     }
 }

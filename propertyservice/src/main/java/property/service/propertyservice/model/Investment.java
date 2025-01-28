@@ -1,7 +1,5 @@
 package property.service.propertyservice.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-
 import jakarta.validation.constraints.NotNull;
 
 import jakarta.persistence.Entity;
@@ -20,7 +18,7 @@ public class Investment {
         PENDING("PENDING"),
         SUCCESS("SUCCESS"),
         FAILED("FAILED"),
-        CANCELED("CANCELED"),
+        CANCELLED("CANCELLED"),
         COMPLETED("COMPLETED");
     
         private final String description;
@@ -37,7 +35,6 @@ public class Investment {
     @Id
     private Long id;
 
-    @JsonBackReference
     @ManyToOne
     @NotNull
     private Property property;
