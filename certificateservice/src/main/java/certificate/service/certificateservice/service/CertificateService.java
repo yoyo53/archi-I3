@@ -61,6 +61,9 @@ public class CertificateService {
         Investment investment = investmentRepository.findById(investmentId).orElseThrow();
         investment.setStatus(status);
         Investment savedInvestment = investmentRepository.save(investment);
+        if (savedInvestment.getStatus().equals(Investment.InvestmentStatus.COMPLETED.getDescription())) {
+            InvestmentFulfilled(investmentId);
+        }
         return savedInvestment;
     }
 
