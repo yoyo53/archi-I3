@@ -41,6 +41,8 @@ public class PropertyService {
     private final String PROPEERTY_DELETED_EVENT = "PropertyDeleted";
     private final String PROPERTY_UPDATED_EVENT = "PropertyUpdated";
 
+    private LocalDate systemDate;
+
     private static final Logger logger = LoggerFactory.getLogger(PropertyService.class);
 
     @Autowired
@@ -49,6 +51,7 @@ public class PropertyService {
         this.kafkaProducer = kafkaProducer;
         this.userRepository = userRepository;
         this.investmentRepository = investmentRepository;
+        this.systemDate = null;
     }
 
     public Property createProperty (@RequestBody @NotNull @Valid CreatePropertyDTO propertyDTO, @NotNull @Valid Long userID) throws Exception{
@@ -158,6 +161,19 @@ public class PropertyService {
         investment.setProperty(property);
         Investment savedInvestment = investmentRepository.save(investment);
         return savedInvestment;
+    }
+
+    public void setDefaultDate(String defaultDate) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate date = LocalDate.parse(defaultDate, formatter);
+        this.systemDate = date;
+    }
+
+    public void changeDate(String date) {
+        // Add logic when date changed
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate newDate = LocalDate.parse(date, formatter);
+        this.systemDate = newDate;
     }
 
 }

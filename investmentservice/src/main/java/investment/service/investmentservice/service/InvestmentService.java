@@ -3,6 +3,8 @@ package investment.service.investmentservice.service;
 import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.TimeZone;
 
@@ -60,6 +62,8 @@ public class InvestmentService {
     private final String EVENT_TYPE = "EventType";
     private final String PAYLOAD = "Payload";
 
+    private LocalDate systemDate;
+
     @Value("${spring.application.timezone}")
     private String timeZone;
 
@@ -71,6 +75,7 @@ public class InvestmentService {
         this.paymentRepository = paymentRepository;
         this.certificatRepository = certificatRepository;
         this.kafkaProducer = kafkaProducer;
+        this.systemDate = null;
     }
 
     // Investment
@@ -164,5 +169,17 @@ public class InvestmentService {
         df.setTimeZone(tz);
         return df.format(new Date());
 
+    }
+    public void setDefaultDate(String defaultDate) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate date = LocalDate.parse(defaultDate, formatter);
+        this.systemDate = date;
+    }
+
+    public void changeDate(String date) {
+        // Add logic when date changed
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate newDate = LocalDate.parse(date, formatter);
+        this.systemDate = newDate;
     }
 }

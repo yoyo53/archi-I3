@@ -37,6 +37,8 @@ public class CertificateService {
     private final String EVENT_TYPE = "EventType";
     private final String PAYLOAD = "Payload";
 
+    private LocalDate systemDate;
+
     @Autowired
     public CertificateService(
             InvestmentRepository investmentRepository,
@@ -47,6 +49,7 @@ public class CertificateService {
         this.certificateRepository = certificateRepository;
         this.kafkaProducer = kafkaProducer;
         this.objectMapper = objectMapper;
+        this.systemDate = null;
     }
 
     public Investment createInvestment(@NotNull @Valid Investment investment) {
@@ -106,6 +109,19 @@ public class CertificateService {
         } else {
             return null;
         }
+    }
+
+    public void setDefaultDate(String defaultDate) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate date = LocalDate.parse(defaultDate, formatter);
+        this.systemDate = date;
+    }
+
+    public void changeDate(String date) {
+        // Add logic when date changed
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate newDate = LocalDate.parse(date, formatter);
+        this.systemDate = newDate;
     }
 
     private Certificate createCertificateFromDTO(@NotNull @Valid CertificateDTO certificateDTO) {

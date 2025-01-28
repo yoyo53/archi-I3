@@ -44,6 +44,15 @@ public class KafkaConsumer {
                             payload.get("property").get("id").asLong());
                     certificateService.createInvestment(investment);
                     break;
+                
+                case "TimeEvent":
+                    ObjectNode payloadTime = (ObjectNode) message.get(PAYLOAD);
+                    if (payloadTime.has("default_date")) {
+                        certificateService.setDefaultDate(payloadTime.get("default_date").asText());
+                    } else if (payloadTime.has("date")) {
+                        certificateService.changeDate(payloadTime.get("date").asText());
+                    }
+                    break;
 
                 default:
                     break;

@@ -43,6 +43,15 @@ public class KafkaConsumer {
                             payload.get("id").asLong());
                     break;
 
+                case "TimeEvent":
+                    ObjectNode payloadTime = (ObjectNode) message.get(PAYLOAD);
+                    if (payloadTime.has("default_date")) {
+                        paymentService.setDefaultDate(payloadTime.get("default_date").asText());
+                    } else if (payloadTime.has("date")) {
+                        paymentService.changeDate(payloadTime.get("date").asText());
+                    }
+                    break;
+
                 default:
                     break;
             }

@@ -51,6 +51,15 @@ public class KafkaConsumer {
                     Long propertyId = message.get(PAYLOAD).get("property").get("id").asLong();
                     propertyService.createInvestment(investment, propertyId);
                     break;
+                    
+                case "TimeEvent":
+                    ObjectNode payloadTime = (ObjectNode) message.get(PAYLOAD);
+                    if (payloadTime.has("default_date")) {
+                        propertyService.setDefaultDate(payloadTime.get("default_date").asText());
+                    } else if (payloadTime.has("date")) {
+                        propertyService.changeDate(payloadTime.get("date").asText());
+                    }
+                    break;
                 
     
                 default:

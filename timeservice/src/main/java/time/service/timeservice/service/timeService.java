@@ -43,6 +43,7 @@ public class timeService {
     public void init() {
         // Initialisation après l'injection
         this.systemDate = LocalDate.now(ZoneId.of(timeZone));
+        sendDefaultTime();
     }
 
     // Method to send the time to the Kafka topic, with TimeDTO as input : date_to_move or number_day_to_skip
@@ -80,7 +81,7 @@ public class timeService {
                 ObjectNode event = new ObjectMapper().createObjectNode();
                 event.put(EVENT_TYPE, "TimeEvent");
                 ObjectNode payload = new ObjectMapper().createObjectNode();
-                payload.put("date", enventDate);
+                payload.put("default_date", enventDate);
                 event.set(PAYLOAD, payload);
 
                 kafkaProducer.sendMessage(topic, event);
@@ -90,8 +91,18 @@ public class timeService {
         return ResponseEntity.ok().build();
     }
 
-    // private Certificate createCertificateFromDTO(@NotNull @Valid CertificateDTO certificateDTO) {
-    //     Investment investment = investmentRepository.findById(certificateDTO.getInvestmentId()).orElseThrow();
-    //     return new Certificate(investment, getISOdate());
-    // }
+    public ResponseEntity<ObjectNode> sendDefaultTime(){
+        String enventDate = systemDate.format(DateTimeFormatter.ISO_LOCAL_DATE);
+
+        // Create and send event for each day
+        ObjectNode event = new ObjectMapper().createObjectNode();
+        event.put(EVENT_TYPE, "TimeEvent");
+        ObjectNode payload = new ObjectMapper().createObjectNode();
+        payload.put("date", enventDate);
+        event.set(PAYLOAD, payload);
+
+        kafkaProducer.sendMessage(topic, event);
+
+        return ResponseEntity.ok().build();
+    }
 }
