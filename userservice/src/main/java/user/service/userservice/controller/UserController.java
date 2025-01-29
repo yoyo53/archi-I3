@@ -27,17 +27,17 @@ public class UserController {
             return ResponseEntity.created(null).body(createdUser);
         } catch (Exception e) {
             logger.error("User creation failed", e);
-            return ResponseEntity.badRequest().body("User creation failed");
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
-    @GetMapping("/login")
+    @PostMapping("/login")
     public ResponseEntity<Object> loginUser(@RequestBody User user) {
-        try{
+        try {
             Long userId = userService.loginUser(user);
             return ResponseEntity.ok(userId);
-        }catch(Exception e){
-            return ResponseEntity.badRequest().body("User login failed");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 }

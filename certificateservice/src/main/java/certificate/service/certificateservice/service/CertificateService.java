@@ -158,6 +158,13 @@ public class CertificateService {
         // Create and save a certificate with the investment and delivery date
         Certificate certificate = new Certificate(investmentFund, deliveryDate);
         certificateRepository.save(certificate);
+
+        // Send a message to the Kafka topic
+        ObjectNode payload = objectMapper.convertValue(certificate, ObjectNode.class);
+        ObjectNode event = objectMapper.createObjectNode()
+                .put(EVENT_TYPE, "CertificateCreated")
+                .set(PAYLOAD, payload);
+        kafkaProducer.sendMessage(topic, event);
     }
 
     private Certificate createCertificateFromDTO(@NotNull @Valid CertificateDTO certificateDTO) {
