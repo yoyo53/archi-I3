@@ -12,16 +12,13 @@ import investment.service.investmentservice.model.Investment;
 @Repository
 public interface InvestmentRepository extends JpaRepository<Investment, Long> {
 
-    // Requête corrigée pour utiliser property.id
     @Query("SELECT SUM(i.amountInvested) FROM Investment i WHERE i.property.id = :propertyID AND (i.status = 'PENDING' OR i.status = 'SUCCESS')")
-    BigDecimal findTotalInvestedByInvestment_PropertyId(@Param("propertyID") Long propertyID);
+    Optional<BigDecimal> sumAmountInvestedByInvestment_PropertyId(@Param("propertyID") Long propertyID);
 
-    // Méthode standard pour trouver les investissements par utilisateur
     Iterable<Investment> findByUser_id(Long userId);
 
-    // Requête corrigée pour utiliser user.id
-    @Query("SELECT SUM(i.amountInvested) FROM Investment i WHERE i.user.id = :userId")
-    BigDecimal findInvestmentTotalByInvestment_UserId(@Param("userId") Long userId);
+    @Query("SELECT SUM(i.amountInvested) FROM Investment i WHERE i.investmentDate > :date AND i.user.id = :userId AND (i.status = 'PENDING' OR i.status = 'SUCCESS')")
+    Optional<BigDecimal> sumAmountInvestedByDateAfterInvestment_UserId(@Param("date") String date, @Param("userId") Long userId);
 
     Optional<Investment> findByPayment_id(Long paymentId);
 

@@ -70,7 +70,9 @@ public class InvestmentService {
     private String timeZone;
 
     @Autowired
-    public InvestmentService(InvestmentRepository investmentRepository, UserRepository userRepository, PropertyRepository propertyRepository, KafkaProducer kafkaProducer, PaymentRepository paymentRepository, CertificateRepository certificateRepository) {
+    public InvestmentService(InvestmentRepository investmentRepository, UserRepository userRepository,
+            PropertyRepository propertyRepository, KafkaProducer kafkaProducer, PaymentRepository paymentRepository,
+            CertificateRepository certificateRepository) {
         this.investmentRepository = investmentRepository;
         this.userRepository = userRepository;
         this.propertyRepository = propertyRepository;
@@ -91,10 +93,10 @@ public class InvestmentService {
         canInvest(property, investmentDTO.getAmount(), user);
 
         Investment investment = new Investment(property, user, getISOdate(), investmentDTO.getAmount());
-        
+
         Investment savedInvestment = investmentRepository.save(investment);
 
-        //Json Object
+        // Json Object
         ObjectNode event = new ObjectMapper().createObjectNode();
         event.put(EVENT_TYPE, "InvestmentCreated");
         ObjectNode payload = new ObjectMapper().convertValue(savedInvestment, ObjectNode.class);
@@ -118,21 +120,28 @@ public class InvestmentService {
 
     public void canInvest(@NotNull @Valid Property property, Double amount, User user) {
 
-        BigDecimal totalInvested = investmentRepository.findTotalInvestedByInvestment_PropertyId(property.getId());
-        if (totalInvested == null) {
-            totalInvested = BigDecimal.ZERO;
-        }
+        BigDecimal totalInvested = investmentRepository.sumAmountInvestedByInvestment_PropertyId(property.getId())
+                .orElse(BigDecimal.ZERO);
 
-        if (totalInvested.add(BigDecimal.valueOf(amount)).compareTo(BigDecimal.valueOf(property.getPrice().longValue())) > 0) {
+        if (totalInvested.add(BigDecimal.valueOf(amount))
+                .compareTo(BigDecimal.valueOf(property.getPrice().longValue())) > 0) {
             throw new IllegalArgumentException("Investment exceeds property price");
         }
 
-        if(!property.getStatus().equals(PropertyStatus.OPENED.getDescription())){
+        if (!property.getStatus().equals(PropertyStatus.OPENED.getDescription())) {
             throw new IllegalArgumentException("Property is not opened for investment");
         }
 
-        if(!user.getRole().equals(UserRole.INVESTOR.getDescription())){
+        if (!user.getRole().equals(UserRole.INVESTOR.getDescription())) {
             throw new IllegalArgumentException("User is not an investor");
+        }
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        if (investmentRepository
+                .sumAmountInvestedByDateAfterInvestment_UserId(systemDate.minusYears(1).format(formatter), user.getId())
+                .orElse(BigDecimal.ZERO).add(BigDecimal.valueOf(amount))
+                .compareTo(BigDecimal.valueOf(INVESTMENT_LIMIT_PER_YEAR)) > 0) {
+            throw new IllegalArgumentException("Investment limit exceeded");
         }
     }
 
@@ -164,7 +173,7 @@ public class InvestmentService {
 
                 kafkaProducer.sendMessage(topic, event);
             }
-        }else if (property.getStatus().equals(PropertyStatus.CLOSED.getDescription())) {
+        } else if (property.getStatus().equals(PropertyStatus.CLOSED.getDescription())) {
             Iterable<Investment> investments = investmentRepository.findByProperty_id(property.getId()).orElseThrow();
             for (Investment investment : investments) {
                 investment.setStatus(InvestmentStatus.CANCELLED.getDescription());
@@ -200,24 +209,23 @@ public class InvestmentService {
         Investment investment = investmentRepository.findByPayment_id(payment.getId()).orElse(null);
         if (investment != null) {
             Payment updatedPayment = paymentRepository.save(payment);
-            
-    
+
             ObjectNode event = new ObjectMapper().createObjectNode();
-            if(payment.getStatus().equals(PaymentStatus.SUCCESS.getDescription())){
+            if (payment.getStatus().equals(PaymentStatus.SUCCESS.getDescription())) {
                 investment.setStatus(InvestmentStatus.SUCCESS.getDescription());
                 event.put(EVENT_TYPE, "InvestmentSuccessful");
-    
-            }else{
+
+            } else {
                 investment.setStatus(InvestmentStatus.FAILED.getDescription());
                 event.put(EVENT_TYPE, "InvestmentFailed");
             }
-    
+
             Investment updatedInvestment = investmentRepository.save(investment);
             ObjectNode payload = new ObjectMapper().convertValue(updatedInvestment, ObjectNode.class);
             event.set(PAYLOAD, payload);
-    
+
             kafkaProducer.sendMessage(topic, event);
-            
+
             return updatedPayment;
         }
 
