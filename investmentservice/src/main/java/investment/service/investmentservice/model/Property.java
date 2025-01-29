@@ -12,6 +12,7 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 import jakarta.persistence.OneToMany;
 
 @Entity
@@ -39,8 +40,10 @@ public class Property {
     @Id
     private Long id;
 
+    @NotNull
     private Long price;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
     private PropertyStatus status;
 

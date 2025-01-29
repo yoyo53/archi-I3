@@ -12,6 +12,7 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 import jakarta.persistence.OneToMany;
 
 @Entity
@@ -37,6 +38,7 @@ public class User {
     @Id
     private Long id;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
     private UserRole role;
 

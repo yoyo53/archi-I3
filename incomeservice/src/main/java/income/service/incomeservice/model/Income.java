@@ -5,6 +5,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 import jakarta.persistence.OneToOne;
 
 @Entity
@@ -15,11 +16,14 @@ public class Income {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotNull
     @OneToOne
     private Investment investment;
 
+    @NotNull
     private String date;
 
+    @NotNull
     private Double amount = 0.0;
 
     // Constructeurs, getters, setters
