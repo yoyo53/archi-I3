@@ -36,7 +36,7 @@ public class Investment {
     private Double sharesOwned;
 
     @OneToOne
-    private Certificate certificat;
+    private Certificate certificate;
 
     // Constructeurs
     public Investment() {
@@ -90,12 +90,12 @@ public class Investment {
         this.userId = userId;
     }
 
-    public Certificate getCertificat() {
-        return certificat;
+    public Certificate getCertificate() {
+        return certificate;
     }
 
-    public void setCertificat(Certificate certificat) {
-        this.certificat = certificat;
+    public void setCertificate(Certificate certificate) {
+        this.certificate = certificate;
     }
     
 }

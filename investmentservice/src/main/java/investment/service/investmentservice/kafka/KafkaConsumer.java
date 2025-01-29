@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import investment.service.investmentservice.model.User;
 import investment.service.investmentservice.model.Property;
 import investment.service.investmentservice.model.Payment;
-import investment.service.investmentservice.model.Certificat;
+import investment.service.investmentservice.model.Certificate;
 
 // Service
 import investment.service.investmentservice.service.InvestmentService;
@@ -63,8 +63,8 @@ public class KafkaConsumer {
                     break;
                 
                 case "CertificateCreated":
-                    Certificat certificat = objectMapper.convertValue(message.get(PAYLOAD), Certificat.class);
-                    investmentService.createCertificat(certificat);
+                    Certificate certificate = objectMapper.convertValue(message.get(PAYLOAD), Certificate.class);
+                    investmentService.createCertificate(certificate);
                     break;
 
                 case "PaymentSuccessful":

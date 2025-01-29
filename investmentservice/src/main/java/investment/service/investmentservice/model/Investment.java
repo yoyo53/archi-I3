@@ -60,7 +60,7 @@ public class Investment {
     private Double sharesOwned;
 
     @OneToOne
-    private Certificat certificat;
+    private Certificate certificate;
 
     @OneToOne
     private Payment payment;
@@ -131,12 +131,12 @@ public class Investment {
         this.sharesOwned = sharesOwned;
     }
 
-    public Certificat getCertificat() {
-        return certificat;
+    public Certificate getCertificate() {
+        return certificate;
     }
 
-    public void setCertificat(Certificat certificat) {
-        this.certificat = certificat;
+    public void setCertificate(Certificate certificate) {
+        this.certificate = certificate;
     }
 
     public Payment getPayment() {

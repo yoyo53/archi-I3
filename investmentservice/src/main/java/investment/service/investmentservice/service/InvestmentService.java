@@ -40,9 +40,9 @@ import investment.service.investmentservice.repository.PropertyRepository;
 import investment.service.investmentservice.model.Payment;
 import investment.service.investmentservice.repository.PaymentRepository;
 
-// Certificat
-import investment.service.investmentservice.model.Certificat;
-import investment.service.investmentservice.repository.CertificatRepository;
+// Certificate
+import investment.service.investmentservice.model.Certificate;
+import investment.service.investmentservice.repository.CertificateRepository;
 
 @Service
 public class InvestmentService {
@@ -57,7 +57,7 @@ public class InvestmentService {
     private final UserRepository userRepository;
     private final PropertyRepository propertyRepository;
     private final PaymentRepository paymentRepository;
-    private final CertificatRepository certificatRepository;
+    private final CertificateRepository certificateRepository;
 
     private final KafkaProducer kafkaProducer;
 
@@ -70,12 +70,12 @@ public class InvestmentService {
     private String timeZone;
 
     @Autowired
-    public InvestmentService(InvestmentRepository investmentRepository, UserRepository userRepository, PropertyRepository propertyRepository, KafkaProducer kafkaProducer, PaymentRepository paymentRepository, CertificatRepository certificatRepository) {
+    public InvestmentService(InvestmentRepository investmentRepository, UserRepository userRepository, PropertyRepository propertyRepository, KafkaProducer kafkaProducer, PaymentRepository paymentRepository, CertificateRepository certificateRepository) {
         this.investmentRepository = investmentRepository;
         this.userRepository = userRepository;
         this.propertyRepository = propertyRepository;
         this.paymentRepository = paymentRepository;
-        this.certificatRepository = certificatRepository;
+        this.certificateRepository = certificateRepository;
         this.kafkaProducer = kafkaProducer;
         this.systemDate = null;
     }
@@ -190,10 +190,10 @@ public class InvestmentService {
         return savedPayment;
     }
 
-    // Certificat
-    public Certificat createCertificat(Certificat certificat) {
-        Certificat savedCertificat = certificatRepository.save(certificat);
-        return savedCertificat;
+    // Certificate
+    public Certificate createCertificate(Certificate certificate) {
+        Certificate savedCertificate = certificateRepository.save(certificate);
+        return savedCertificate;
     }
 
     public Payment updatePaymentStatus(Payment payment) {

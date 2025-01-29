@@ -9,20 +9,20 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "certificats")
-public class Certificat {
+@Table(name = "certificates")
+public class Certificate {
 
     @Id
     private Long id;
 
     @JsonIgnore
-    @OneToOne(mappedBy = "certificat")
+    @OneToOne(mappedBy = "certificate")
     private Investment investment;
 
-    public Certificat() {
+    public Certificate() {
     }
 
-    public Certificat(Long id) {
+    public Certificate(Long id) {
         this.id = id;
     }
 
