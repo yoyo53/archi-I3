@@ -59,7 +59,7 @@ public class KafkaConsumer {
                     investmentService.createPayment(payment, InvestmentId);
                     break;
                 
-                case "CertificatCreated":
+                case "CertificateCreated":
                     Certificat certificat = objectMapper.convertValue(message.get(PAYLOAD), Certificat.class);
                     investmentService.createCertificat(certificat);
                     break;
