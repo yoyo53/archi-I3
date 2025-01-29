@@ -249,5 +249,18 @@ public class InvestmentService {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         LocalDate newDate = LocalDate.parse(date, formatter);
         this.systemDate = newDate;
+
+        Iterable<Investment> investments = investmentRepository.findByInvestmentDateBeforeAndStatus(date, InvestmentStatus.PENDING);
+        for (Investment investment : investments) {
+            investment.setStatus(InvestmentStatus.FAILED.getDescription());
+            investmentRepository.save(investment);
+
+            ObjectNode event = new ObjectMapper().createObjectNode();
+            event.put(EVENT_TYPE, "InvestmentFailed");
+            ObjectNode payload = new ObjectMapper().convertValue(investment, ObjectNode.class);
+            event.set(PAYLOAD, payload);
+
+            kafkaProducer.sendMessage(topic, event);
+        }
     }
 }
