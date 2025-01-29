@@ -3,6 +3,8 @@ package income.service.incomeservice.service;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -32,6 +34,8 @@ public class IncomeService {
     private final CertificateRepository certificateRepository;
     private final KafkaProducer kafkaProducer;
     private final ObjectMapper objectMapper;
+
+    private Logger logger = LoggerFactory.getLogger(IncomeService.class);
 
     private LocalDate systemDate;
 
@@ -65,6 +69,7 @@ public class IncomeService {
     public Certificate createCertificate(Certificate certificate, Long investmentId) {
         Investment investment = investmentRepository.findById(investmentId).orElseThrow();
         certificate.setInvestment(investment);
+        investment.setCertificate(certificate);
         return certificateRepository.save(certificate);
 
     }
@@ -81,14 +86,24 @@ public class IncomeService {
         this.systemDate = newDate;
         String dateString = systemDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 
+        logger.warn("Creating incomes for " + dateString);
         if (systemDate.getDayOfMonth() == 1) {
-            Iterable<Investment> investments =  investmentRepository.findByCertificate_EmissionDateBefore(dateString);
+            logger.warn("I am in the first day of the month");
+            Iterable<Investment> investments =  investmentRepository.findByCertificate_EmissionDateBefore(dateString).orElseThrow();
+            if (investments == null) {
+                System.out.println(("No investments found"));
+                return;
+            }
             for (Investment investment : investments) {
+                logger.warn("Creating income for investment " + investment.getId());
                 Income income = new Income(investment, dateString, investment.getAmountInvested() * investment.getProperty().getAnnualRentalIncomeRate() / 12);
+
 
                 if (systemDate.getMonthValue() == 1) {
                     income.setAmount(income.getAmount() + investment.getAmountInvested() * investment.getProperty().getAppreciationRate());
                 }
+
+                incomeRepository.save(income);
                 ObjectNode event = new ObjectMapper().createObjectNode();
                 event.put(EVENT_TYPE, "IncomeCreated");
                 ObjectNode payload = new ObjectMapper().convertValue(income, ObjectNode.class);
@@ -98,4 +113,12 @@ public class IncomeService {
             }
         }
     }
+
+    public Investment linkInvestmentToCertificate(Long investmentId, Long certificateId) {
+        Investment investment = investmentRepository.findById(investmentId).orElseThrow();
+        Certificate certificate = certificateRepository.findById(certificateId).orElseThrow();
+        investment.setCertificate(certificate);
+        return investmentRepository.save(investment);
+    }
+
 }

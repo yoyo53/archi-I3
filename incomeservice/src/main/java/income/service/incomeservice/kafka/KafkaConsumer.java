@@ -56,7 +56,8 @@ public class KafkaConsumer {
                 case "CertificateCreated":
                     Certificate certificate = objectMapper.convertValue(message.get(PAYLOAD), Certificate.class);
                     Long investmentIdForCertificate = message.get(PAYLOAD).get("investment").get("id").asLong();
-                    incomeService.createCertificate(certificate, investmentIdForCertificate);
+                    Certificate createdCertificate =  incomeService.createCertificate(certificate, investmentIdForCertificate);
+                    incomeService.linkInvestmentToCertificate(investmentIdForCertificate, createdCertificate.getId());
                     break;
                 case "TimeEvent":
                     ObjectNode payloadTime = (ObjectNode) message.get(PAYLOAD);
