@@ -43,19 +43,20 @@ public class KafkaConsumer {
                     incomeService.createProperty(property);
                     break;
                 case "InvestmentCompleted":
-                    ObjectNode investmentPaylaod = (ObjectNode) message.get("payload");
+                    ObjectNode investmentPayload = (ObjectNode) message.get("Payload");
 
-                    Long propertyId = investmentPaylaod.get("property").get("id").asLong();
-                    Long userId = investmentPaylaod.get("user").get("id").asLong();
-                    Double amountInvested = investmentPaylaod.get("amountInvested").asDouble();
-                    Double sharesOwned = investmentPaylaod.get("sharesOwned").asDouble();
+                    Long propertyId = investmentPayload.get("property").get("id").asLong();
+                    Long userId = investmentPayload.get("user").get("id").asLong();
+                    Double amountInvested = investmentPayload.get("amountInvested").asDouble();
+                    Double sharesOwned = investmentPayload.get("sharesOwned").asDouble();
+                    Long investmentId = investmentPayload.get("id").asLong();
                     
-                    incomeService.createInvestment(propertyId, userId, amountInvested, sharesOwned);
+                    incomeService.createInvestment(propertyId, userId, amountInvested, sharesOwned, investmentId);
                     break;
                 case "CertificateCreated":
                     Certificate certificate = objectMapper.convertValue(message.get(PAYLOAD), Certificate.class);
-                    Long investmentId = message.get(PAYLOAD).get("investment").get("id").asLong();
-                    incomeService.createCertificate(certificate, investmentId);
+                    Long investmentIdForCertificate = message.get(PAYLOAD).get("investment").get("id").asLong();
+                    incomeService.createCertificate(certificate, investmentIdForCertificate);
                     break;
                 case "TimeEvent":
                     ObjectNode payloadTime = (ObjectNode) message.get(PAYLOAD);

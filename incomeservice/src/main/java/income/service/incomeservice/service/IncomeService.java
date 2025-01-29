@@ -56,9 +56,9 @@ public class IncomeService {
         return propertyRepository.save(property);
     }
 
-    public Investment createInvestment(Long propertyId, Long userId, Double amountInvested, Double sharesOwned) {
+    public Investment createInvestment(Long propertyId, Long userId, Double amountInvested, Double sharesOwned, Long id) {
         Property property = propertyRepository.findById(propertyId).orElseThrow();
-        Investment investment = new Investment(property, userId, amountInvested, sharesOwned);
+        Investment investment = new Investment(property, userId, amountInvested, sharesOwned, id);
         return investmentRepository.save(investment);
     }
 

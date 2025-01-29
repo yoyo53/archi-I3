@@ -39,11 +39,12 @@ public class Investment {
     public Investment() {
     }
 
-    public Investment(Property property, Long userId, Double amountInvested, Double sharesOwned) {
+    public Investment(Property property, Long userId, Double amountInvested, Double sharesOwned, Long id) {
         this.property = property;
         this.userId = userId;
         this.amountInvested = amountInvested;
         this.sharesOwned = sharesOwned;
+        this.id = id;
     }   
 
     // Getters et Setters
