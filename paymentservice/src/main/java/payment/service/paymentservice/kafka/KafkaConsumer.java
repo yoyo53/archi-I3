@@ -60,7 +60,13 @@ public class KafkaConsumer {
                         paymentService.changeDate(payloadTime.get("date").asText());
                     }
                     break;
-
+                case "InvestmentCancelled":
+                    ObjectNode investmentCancelledPayload = (ObjectNode) message.get(PAYLOAD);
+                    paymentService.createPayment(investmentCancelledPayload.get("user").get("id").asLong(),
+                            -investmentCancelledPayload.get("amountInvested").asDouble(), 
+                            investmentCancelledPayload.get("id").asLong());
+                    
+                    break;
                 default:
                     break;
             }

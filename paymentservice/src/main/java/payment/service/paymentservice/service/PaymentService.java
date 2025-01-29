@@ -120,13 +120,11 @@ public class PaymentService {
     }
 
     public void changeDate(String date) {
-        // Add logic when date changed
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         LocalDate newDate = LocalDate.parse(date, formatter);
         this.systemDate = newDate;
         String dateString = systemDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 
-        // Check if there are certificates with the new date and send a message
         Iterable<Payment> payments = paymentRepository.findByDateBeforeAndStatus(dateString, PaymentStatus.PENDING);
         for (Payment payment : payments) {
             updatePaymentStatus(payment.getId(), PaymentStatus.FAILED.getDescription());

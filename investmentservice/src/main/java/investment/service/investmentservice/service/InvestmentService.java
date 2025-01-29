@@ -164,6 +164,19 @@ public class InvestmentService {
 
                 kafkaProducer.sendMessage(topic, event);
             }
+        }else if (property.getStatus().equals(PropertyStatus.CLOSED.getDescription())) {
+            Iterable<Investment> investments = investmentRepository.findByProperty_id(property.getId()).orElseThrow();
+            for (Investment investment : investments) {
+                investment.setStatus(InvestmentStatus.CANCELLED.getDescription());
+                investmentRepository.save(investment);
+
+                ObjectNode event = new ObjectMapper().createObjectNode();
+                event.put(EVENT_TYPE, "InvestmentCancelled");
+                ObjectNode payload = new ObjectMapper().convertValue(investment, ObjectNode.class);
+                event.set(PAYLOAD, payload);
+
+                kafkaProducer.sendMessage(topic, event);
+            }
         }
         return updatedProperty;
     }

@@ -195,10 +195,23 @@ public class PropertyService {
     }
 
     public void changeDate(String date) {
-        // Add logic when date changed
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         LocalDate newDate = LocalDate.parse(date, formatter);
         this.systemDate = newDate;
+        String stringDate = systemDate.format(formatter);
+
+        Iterable<Property> properties = propertyRepository.findByStatusAndFundingDeadlineBeforeOrEqual(PropertyStatus.OPENED, stringDate);
+        for(Property property : properties){
+            property.setStatus(PropertyStatus.CLOSED.getDescription());
+            Property savedProperty = propertyRepository.save(property);
+
+            ObjectNode event = new ObjectMapper().createObjectNode();
+            event.put(EVENT_TYPE, "PropertyClosed");
+            ObjectNode payload = new ObjectMapper().convertValue(savedProperty, ObjectNode.class);
+            event.set(PAYLOAD, payload);
+
+            kafkaProducer.sendMessage(topic, event);
+        }
     }
 
 }
