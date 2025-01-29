@@ -144,6 +144,31 @@ services:
       timeout: 5s
       retries: 5
 
+
+  notification-service:
+    container_name: notification-service
+    depends_on:
+      kafka-service:
+        condition: service_healthy
+    build: notificationservice
+    ports:
+      - "${NOTIFICATION_SERVER_PORT}:${NOTIFICATION_SERVER_PORT}"
+    environment:
+      - SERVER_PORT=${NOTIFICATION_SERVER_PORT}
+      - SPRING_DATASOURCE_URL=${NOTIFICATION_DATASOURCE_URL}
+      - SPRING_DATASOURCE_USERNAME=${NOTIFICATION_DATASOURCE_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${NOTIFICATION_DATASOURCE_PASSWORD}
+      - SPRING_KAFKA_URL=${KAFKA_URL}
+      - SPRING_KAFKA_GROUP=${NOTIFICATION_KAFKA_GROUP}
+      - SPRING_KAFKA_TOPIC=${KAFKA_TOPIC}
+      - LOCAL_TIMEZONE=${LOCAL_TIMEZONE}
+      - LOGGING_LEVEL_ROOT=${LOGGING_LEVEL}
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "${NOTIFICATION_SERVER_PORT}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   certificate-service:
     container_name: certificate-service
     depends_on:

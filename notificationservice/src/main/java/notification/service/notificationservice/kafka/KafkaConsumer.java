@@ -10,6 +10,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import notification.service.notificationservice.model.Investment;
+import notification.service.notificationservice.model.User;
+import notification.service.notificationservice.model.User.UserRole;
 import notification.service.notificationservice.service.NotificationService;
 
 @Service
@@ -35,12 +37,32 @@ public class KafkaConsumer {
 
         try {
             String eventType = message.get(EVENT_TYPE).asText();
+            ObjectNode payload = (ObjectNode) message.get(PAYLOAD);
             switch (eventType) {
+                case "UserCreated":
+                    User user = objectMapper.convertValue(message.get(PAYLOAD), User.class);
+                    if (user.getRole().equals(UserRole.AGENT.getDescription())) {
+                        logger.warn("Adding agent in database");
+                        notificationService.createAgent(user);
+                    }
+                    break;
                 case "InvestmentCreated":
                     Investment investment = objectMapper.convertValue(message.get(PAYLOAD), Investment.class);
-                    notificationService.createInvestment(investment);
+                    Long propertyId = message.get(PAYLOAD).get("property").get("id").asLong();
+                    notificationService.createInvestment(investment, propertyId);
                     break;
-
+                case "PaymentSuccessful":
+                    notificationService.sendNotification("Payment Successful", payload);
+                    break;
+                case "PaymentFailed":
+                    notificationService.sendNotification("Payment Failed", payload);
+                    break;
+                case "PropertyFunded":
+                    notificationService.sendNotification("Property Funded", payload);
+                    break;
+                case "CertificateDelivery":
+                    notificationService.sendNotification("Certificate Delivery", payload);
+                    break;
                 default:
                     break;
             }
