@@ -24,4 +24,6 @@ public interface InvestmentRepository extends JpaRepository<Investment, Long> {
     Optional<Investment> findByPayment_id(Long paymentId);
 
     Optional<Iterable<Investment>> findByStatusAndProperty_id(InvestmentStatus status, Long propertyId);
+
+    Iterable<Investment> findByInvestmentDateBeforeAndStatus(String date, InvestmentStatus status);
 }
