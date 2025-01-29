@@ -13,7 +13,6 @@ import jakarta.validation.constraints.NotNull;
 public class Certificate {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @OneToOne
