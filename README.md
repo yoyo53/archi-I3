@@ -19,6 +19,7 @@ The solution is implented via a mix of microservices architecture and event driv
 ## Installation
 
 
+\
 **Step 1: Clone the GitHub Repository**
 
 1. Open a command line or terminal.
@@ -32,7 +33,6 @@ The solution is implented via a mix of microservices architecture and event driv
 
 
 \
-
 **Step 2: Configure Environment Variables**
 
 1. In the directory, locate a file named `.env.example`.
@@ -41,7 +41,8 @@ The solution is implented via a mix of microservices architecture and event driv
 
 3. Open the `.env` file in a text editor.
 
-4. FIll the fields marked with <> with the according data 
+4. Fill the fields marked with <> with the according data 
+
 
 \
 **Step 3: Build and run the dockers**
@@ -79,18 +80,20 @@ The solution is implented via a mix of microservices architecture and event driv
 
     -  Login with your email and password using the login route to receive ``your id``. Remember it
 
-    - As an Agent, ``create a property`` using the createProperty route. You need to put the ``id of the Agent`` in the Authorization header. Complete the body as you want.
+    - As an Agent, ``create a property`` using the ``createProperty`` route. You need to put the ``id of the Agent`` in the ``Authorization`` header. Complete the body as you want.
 
     - Update it as ``OPENED`` as an Agent using the updateProperty route so that investors can start invest in it. 
 
-    - Add money to your wallet as an Investor using the route ``deposit``. Reference the investor id in the ``Authorization header``.
+    - Add money to your wallet as an Investor using the route ``deposit``. Reference the investor id in the ``Authorization`` header.
 
-    - Invest in a property as an investor using the ``createInvestment route``. When the investments for the property will reach its price, the property will be ``marked as funded``.
+    - Invest in a property as an investor using the ``createInvestment`` route. When the investments for the property will reach its price, the property will be marked as ``FUNDED``.
 
     - Certificates will be then ``delivered``. You can check it using the ``getCertificates`` route. Investors will start receive money.
 
     - Use the Time routes to ``skip days`` or to set a ``specitic date``.
 
-    - Check user balances using the ``getMyWallet`` route and by specifying the id in the ``Authorization header``. You will be able to monitor the rental income.
+    - Check user balances using the ``getMyWallet`` route and by specifying the id in the ``Authorization`` header. You will be able to monitor the rental income.
+
+    - Monitor the logs of the ``notification`` service to see the notifications send to users at various steps
 
 
