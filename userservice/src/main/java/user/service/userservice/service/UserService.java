@@ -24,7 +24,6 @@ public class UserService {
     private final String USER_CREATED_EVENT = "UserCreated";
     private final String EVENT_TYPE = "EventType";
     private final String PAYLOAD = "Payload";
-    private final String USER_ID = "id";
 
     @Autowired
     public UserService(UserRepository userRepository, KafkaProducer kafkaProducer) {
@@ -32,34 +31,23 @@ public class UserService {
         this.kafkaProducer = kafkaProducer;
     }
 
-    public String createUser(User user) {
-        if (userRepository.findByEmail(user.getEmail()) != null) {
-            return "User already exists";
+    public User createUser(User user) {
+        if (userRepository.existsByEmail(user.getEmail())) {
+            throw new IllegalArgumentException("User already exists");
         }
-    
-        if (!user.getRole().equals(UserRole.INVESTOR.getDescription()) && !user.getRole().equals(UserRole.AGENT.getDescription())) {
-            return "Role must be either Investor or Agent";
-        }
-
         User savedUser = userRepository.save(user);
 
         ObjectNode event = new ObjectMapper().createObjectNode();
         event.put(EVENT_TYPE, USER_CREATED_EVENT);
-        ObjectNode payload = new ObjectMapper().createObjectNode();
-        payload.put(USER_ID, savedUser.getId());
-        payload.put("role", savedUser.getRole());
+        ObjectNode payload = new ObjectMapper().convertValue(savedUser, ObjectNode.class);
         event.set(PAYLOAD, payload);
 
         kafkaProducer.sendMessage(topic, event);
-        return "User created successfully";
+        return savedUser;
     }
 
-    public String loginUser(User user) {
-        if (userRepository.existsByEmailAndPassword(user.getEmail(), user.getPassword()) != null) {
-            User userFromDb = userRepository.findByEmailAndPassword(user.getEmail(), user.getPassword());
-            return "Login successful : " + userFromDb.getId();
-        } else {
-            return "User does not exist";
-        }
+    public Long loginUser(User user) {
+        User savedUser = userRepository.findByEmailAndPassword(user.getEmail(), user.getPassword()).orElseThrow();
+        return savedUser.getId();
     }
 }
