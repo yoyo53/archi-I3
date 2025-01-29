@@ -161,7 +161,7 @@ public class InvestmentService {
         Property updatedProperty = propertyRepository.save(property);
 
         if (property.getStatus().equals(PropertyStatus.FUNDED.getDescription())) {
-            Iterable<Investment> investments = investmentRepository.findByProperty_id(property.getId()).orElseThrow();
+            Iterable<Investment> investments = investmentRepository.findByStatusAndProperty_id(InvestmentStatus.SUCCESS,property.getId()).orElseThrow();
             for (Investment investment : investments) {
                 investment.setStatus(InvestmentStatus.COMPLETED.getDescription());
                 investmentRepository.save(investment);
@@ -174,7 +174,7 @@ public class InvestmentService {
                 kafkaProducer.sendMessage(topic, event);
             }
         } else if (property.getStatus().equals(PropertyStatus.CLOSED.getDescription())) {
-            Iterable<Investment> investments = investmentRepository.findByProperty_id(property.getId()).orElseThrow();
+            Iterable<Investment> investments = investmentRepository.findByStatusAndProperty_id(InvestmentStatus.SUCCESS, property.getId()).orElseThrow();
             for (Investment investment : investments) {
                 investment.setStatus(InvestmentStatus.CANCELLED.getDescription());
                 investmentRepository.save(investment);

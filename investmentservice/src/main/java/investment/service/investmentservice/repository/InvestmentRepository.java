@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 import java.util.Optional;
 
 import investment.service.investmentservice.model.Investment;
+import investment.service.investmentservice.model.Investment.InvestmentStatus;
 
 @Repository
 public interface InvestmentRepository extends JpaRepository<Investment, Long> {
@@ -22,5 +23,5 @@ public interface InvestmentRepository extends JpaRepository<Investment, Long> {
 
     Optional<Investment> findByPayment_id(Long paymentId);
 
-    Optional<Iterable<Investment>> findByProperty_id(Long propertyId);
+    Optional<Iterable<Investment>> findByStatusAndProperty_id(InvestmentStatus status, Long propertyId);
 }

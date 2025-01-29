@@ -59,8 +59,7 @@ public class KafkaConsumer {
                 case "InvestmentCancelled":
                     ObjectNode investmentCancelledPayload = (ObjectNode) message.get(PAYLOAD);
                     paymentService.createPayment(investmentCancelledPayload.get("user").get("id").asLong(),
-                            -investmentCancelledPayload.get("amountInvested").asDouble(), 
-                            investmentCancelledPayload.get("id").asLong());
+                            -investmentCancelledPayload.get("amountInvested").asDouble());
                     
                     break;
                 default:

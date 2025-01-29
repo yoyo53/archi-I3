@@ -9,10 +9,6 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import notification.service.notificationservice.model.Investment;
-import notification.service.notificationservice.model.Property;
-import notification.service.notificationservice.model.User;
-import notification.service.notificationservice.model.User.UserRole;
 import notification.service.notificationservice.service.NotificationService;
 
 @Service
@@ -40,21 +36,6 @@ public class KafkaConsumer {
             String eventType = message.get(EVENT_TYPE).asText();
             ObjectNode payload = (ObjectNode) message.get(PAYLOAD);
             switch (eventType) {
-                case "UserCreated":
-                    User user = objectMapper.convertValue(message.get(PAYLOAD), User.class);
-                    if (user.getRole().equals(UserRole.AGENT.getDescription())) {
-                        notificationService.createAgent(user);
-                    }
-                    break;
-                case "PropertyCreated":
-                    Property property = objectMapper.convertValue(message.get(PAYLOAD), Property.class);
-                    notificationService.createProperty(property);
-                    break;
-                case "InvestmentCreated":
-                    Investment investment = objectMapper.convertValue(message.get(PAYLOAD), Investment.class);
-                    Long propertyId = message.get(PAYLOAD).get("property").get("id").asLong();
-                    notificationService.createInvestment(investment, propertyId);
-                    break;
                 case "PaymentSuccessful":
                     notificationService.sendNotification("Payment Successful", payload);
                     break;
