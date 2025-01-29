@@ -1,5 +1,8 @@
 package property.service.propertyservice.service;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -10,9 +13,11 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
-import property.service.propertyservice.dto.PropertyDTO;
+import property.service.propertyservice.dto.CreatePropertyDTO;
+import property.service.propertyservice.dto.UpdatePropertyDTO;
 import property.service.propertyservice.kafka.KafkaProducer;
 import property.service.propertyservice.model.Investment;
+import property.service.propertyservice.model.Investment.InvestmentStatus;
 import property.service.propertyservice.model.Property;
 import property.service.propertyservice.model.User;
 import property.service.propertyservice.model.User.UserRole;
@@ -40,6 +45,8 @@ public class PropertyService {
     private final String PROPEERTY_DELETED_EVENT = "PropertyDeleted";
     private final String PROPERTY_UPDATED_EVENT = "PropertyUpdated";
 
+    private LocalDate systemDate;
+
     private static final Logger logger = LoggerFactory.getLogger(PropertyService.class);
 
     @Autowired
@@ -48,34 +55,22 @@ public class PropertyService {
         this.kafkaProducer = kafkaProducer;
         this.userRepository = userRepository;
         this.investmentRepository = investmentRepository;
+        this.systemDate = null;
     }
 
-    public Property createProperty (@RequestBody @NotNull @Valid Property property, @NotNull @Valid Long userID) throws Exception{
+    public Property createProperty (@RequestBody @NotNull @Valid CreatePropertyDTO propertyDTO, @NotNull @Valid Long userID) throws Exception{
         User user = userRepository.findById(userID).orElse(null);
         if(user == null || !user.getRole().equals(UserRole.AGENT.getDescription())){
             logger.error("User does not exist or is not an agent");
             throw new Exception("User does not exist or is not an agent");
         }
 
-        if(!property.getStatus().equals(PropertyStatus.DRAFT.getDescription())){
-            logger.error("Property status must be DRAFT when creating a new property");
-            throw new Exception("Property status must be DRAFT when creating a new property");
-        }
-
+        Property property = new Property(propertyDTO);
         Property savedProperty = propertyRepository.save(property);
         
         ObjectNode event = new ObjectMapper().createObjectNode();
         event.put(EVENT_TYPE, PROPERTY_CREATED_EVENT);
-        ObjectNode payload = new ObjectMapper().createObjectNode();
-        payload.put("id", savedProperty.getId());
-        payload.put("name", savedProperty.getName());
-        payload.put("type", savedProperty.getType());
-        payload.put("price", savedProperty.getPrice());
-        payload.put("annualRentalIncomeRate", savedProperty.getAnnualRentalIncomeRate());
-        payload.put("appreciationRate", savedProperty.getAppreciationRate());
-        payload.put("status", savedProperty.getStatus());
-        payload.put("fundingDeadline", savedProperty.getFundingDeadline());
-        payload.put("fundedAmount", savedProperty.getFundedAmount());
+        ObjectNode payload = new ObjectMapper().convertValue(savedProperty, ObjectNode.class);
         event.set(PAYLOAD, payload);
 
         kafkaProducer.sendMessage(topic, event);
@@ -117,7 +112,7 @@ public class PropertyService {
         return propertyRepository.findById(id).get();
     }
 
-    public Property updateProperty(@NotNull @Valid Long id, @NotNull @Valid PropertyDTO propertyDTO, @NotNull @Valid Long userID) throws Exception{
+    public Property updateProperty(@NotNull @Valid Long id, @NotNull @Valid UpdatePropertyDTO propertyDTO, @NotNull @Valid Long userID) throws Exception{
         User user = userRepository.findById(userID).orElse(null);
         if(user == null || !user.getRole().equals(UserRole.AGENT.getDescription())){
             logger.error("User does not exist or is not an agent");
@@ -131,7 +126,7 @@ public class PropertyService {
             return null;
         }
 
-        if(!checkMaximumOpenProperties()){
+        if(!checkMaximumOpenProperties() && propertyDTO.getStatus().equals(PropertyStatus.OPENED.getDescription())){
             logger.error("Maximum number of open properties reached");
             throw new Exception("Maximum number of open properties reached");
         }
@@ -143,9 +138,7 @@ public class PropertyService {
 
         ObjectNode event = new ObjectMapper().createObjectNode();
         event.put(EVENT_TYPE, PROPERTY_UPDATED_EVENT);
-        ObjectNode payload = new ObjectMapper().createObjectNode();
-        payload.put("id", newProperty.getId());
-        payload.put("status", newProperty.getStatus());
+        ObjectNode payload = new ObjectMapper().convertValue(newProperty, ObjectNode.class);
         event.set(PAYLOAD, payload);
 
         kafkaProducer.sendMessage(topic, event);
@@ -158,16 +151,7 @@ public class PropertyService {
     }
 
     private boolean checkMaximumOpenProperties(){
-        int count = 0;
-        for(Property property : propertyRepository.findAll()){
-            if(property.getStatus().equals(PropertyStatus.OPENED.getDescription())){
-                count++;
-            }
-        }
-        if(count >= 6){
-            return false;
-        }
-        return true;
+        return propertyRepository.countByStatus(PropertyStatus.OPENED) <= 5;
     }
         
 
@@ -176,9 +160,45 @@ public class PropertyService {
         return savedUser;
     }
 
-    public Investment createInvestment(@NotNull @Valid Investment investment){
+    public Investment updateInvestmentStatus(@NotNull @Valid Investment investment, Long propertyId){
+        Investment updatedInvestment = investmentRepository.save(investment);
+
+        if (updatedInvestment.getStatus().equals(InvestmentStatus.SUCCESS.getDescription())) {
+            Property property = propertyRepository.findById(propertyId).orElseThrow();
+            Double totalInvested = propertyRepository.sumInvestedAmountById(propertyId);
+            if(totalInvested >= property.getPrice()){
+                property.setStatus(PropertyStatus.FUNDED.getDescription());
+                Property updatedProperty =  propertyRepository.save(property);
+
+                ObjectNode event = new ObjectMapper().createObjectNode();
+                event.put(EVENT_TYPE, "PropertyFunded");
+                ObjectNode payload = new ObjectMapper().convertValue(updatedProperty, ObjectNode.class);
+                event.set(PAYLOAD, payload);
+
+                kafkaProducer.sendMessage(topic, event);
+            }
+        }
+        return updatedInvestment;
+    }
+
+    public Investment createInvestment(@NotNull @Valid Investment investment, Long propertyId){
+        Property property = propertyRepository.findById(propertyId).orElseThrow();
+        investment.setProperty(property);
         Investment savedInvestment = investmentRepository.save(investment);
         return savedInvestment;
+    }
+
+    public void setDefaultDate(String defaultDate) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate date = LocalDate.parse(defaultDate, formatter);
+        this.systemDate = date;
+    }
+
+    public void changeDate(String date) {
+        // Add logic when date changed
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate newDate = LocalDate.parse(date, formatter);
+        this.systemDate = newDate;
     }
 
 }

@@ -16,11 +16,15 @@ public class Wallet {
 
     private Long userId;
 
-    private Double balance;
+    private Double balance = 0.0;
 
     // Constructeurs, getters, setters
     public Wallet() {
-        this.balance = 0.0;
+
+    }
+
+    public Wallet(Long userId) {
+        this.userId = userId;
     }
 
     public Long getId() {
@@ -43,8 +47,9 @@ public class Wallet {
         return balance;
     }
 
-    public void setRole(Double balance) {
+    public void setBalance(Double balance) {
         this.balance = balance;
     }
+
 
 }

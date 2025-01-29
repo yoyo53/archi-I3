@@ -53,19 +53,34 @@ public class KafkaConsumer {
                     investmentService.createProperty(property);
                     break;
 
-                case "PropertyUpdated":
-                    Property propertyUpdated = objectMapper.convertValue(message.get(PAYLOAD), Property.class);
-                    investmentService.updatePropertyStatus(propertyUpdated);
-                    break;
-
                 case "PaymentCreated":
                     Payment payment = objectMapper.convertValue(message.get(PAYLOAD), Payment.class);
-                    investmentService.createPayment(payment);
+                    Long InvestmentId = message.get(PAYLOAD).get("InvestmentID").asLong();
+                    investmentService.createPayment(payment, InvestmentId);
                     break;
                 
                 case "CertificatCreated":
                     Certificat certificat = objectMapper.convertValue(message.get(PAYLOAD), Certificat.class);
                     investmentService.createCertificat(certificat);
+                    break;
+
+                case "PaymentSuccessful":
+                case "PaymentFailed":
+                    Payment paymentUpdated = objectMapper.convertValue(message.get(PAYLOAD), Payment.class);
+                    investmentService.updatePaymentStatus(paymentUpdated);
+                    break;
+                case "PropertyUpdated":
+                case "PropertyFunded":
+                    Property propertyUpdated = objectMapper.convertValue(message.get(PAYLOAD), Property.class);
+                    investmentService.updatePropertyStatus(propertyUpdated);
+                    break;
+                case "TimeEvent":
+                    ObjectNode payloadTime = (ObjectNode) message.get(PAYLOAD);
+                    if (payloadTime.has("default_date")) {
+                        investmentService.setDefaultDate(payloadTime.get("default_date").asText());
+                    } else if (payloadTime.has("date")) {
+                        investmentService.changeDate(payloadTime.get("date").asText());
+                    }
                     break;
 
                 default:

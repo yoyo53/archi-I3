@@ -1,27 +1,38 @@
 package investment.service.investmentservice.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.OneToMany;
 
 @Entity
 @Table(name = "properties")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+
 public class Property {
-    public enum Status {
-        DRAFT("Draft"),
-        OPENED("Opened"),
-        FUNDED("Funded"),
-        CLOSED("Closed");
-
-        private final String status;
-
-        Status(String displayName) {
-            this.status = displayName;
+    public enum PropertyStatus {
+        DRAFT("DRAFT"),
+        OPENED("OPENED"),
+        FUNDED("FUNDED"),
+        CLOSED("CLOSED");
+    
+        private final String description;
+    
+        PropertyStatus(String description) {
+            this.description = description;
         }
-
-        public String getStatus() {
-            return status;
+    
+        public String getDescription() {
+            return description;
         }
     }
 
@@ -30,19 +41,17 @@ public class Property {
 
     private Long price;
 
-    private Status status;
+    @Enumerated(EnumType.STRING)
+    private PropertyStatus status;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "property")
-    private Investment[] investments;
+    private List<Investment> investments;
 
     public Property() {
+        this.investments = new ArrayList<>();
     }
 
-    public Property(Long id, Long price, Status status, Long[] investors) {
-        this.id = id;
-        this.price = price;
-        this.status = status;
-    }
 
     public Long getId() {
         return id;
@@ -61,18 +70,18 @@ public class Property {
     }
 
     public String getStatus() {
-        return status.getStatus();
+        return status.getDescription();
     }
 
     public void setStatus(String status) {
-        this.status = Status.valueOf(status);
+        this.status = PropertyStatus.valueOf(status);
     }
 
-    public Investment[] getInvestments() {
+    public List<Investment> getInvestments() {
         return investments;
     }
 
-    public void setInvestments(Investment[] investments) {
+    public void setInvestments(List<Investment> investments) {
         this.investments = investments;
     }
 }

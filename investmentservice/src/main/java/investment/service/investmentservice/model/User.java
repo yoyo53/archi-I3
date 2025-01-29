@@ -1,28 +1,53 @@
 package investment.service.investmentservice.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.OneToMany;
 
 @Entity
 @Table(name = "users")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class User {
+
+    public enum UserRole {
+        AGENT("AGENT"),
+        INVESTOR("INVESTOR");
+    
+        private final String description;
+    
+        UserRole(String description) {
+            this.description = description;
+        }
+    
+        public String getDescription() {
+            return description;
+        }
+    }
 
     @Id
     private Long id;
 
-    private String role;
+    @Enumerated(EnumType.STRING)
+    private UserRole role;
 
     @OneToMany(mappedBy = "user")
-    private Investment[] investments;
+    @JsonIgnore
+    private List<Investment> investments;
 
     public User() {
+        this.investments = new ArrayList<>();
     }
 
-    public User(Long id) {
-        this.id = id;
-    }
 
     public Long getId() {
         return id;
@@ -33,18 +58,18 @@ public class User {
     }
 
     public String getRole() {
-        return role;
+        return role.getDescription();
     }
 
     public void setRole(String role) {
-        this.role = role;
+        this.role = UserRole.valueOf(role);
     }
 
-    public Investment[] getInvestments() {
+    public List<Investment> getInvestments() {
         return investments;
     }
 
-    public void setInvestments(Investment[] investments) {
+    public void setInvestments(List<Investment> investments) {
         this.investments = investments;
     }
 }

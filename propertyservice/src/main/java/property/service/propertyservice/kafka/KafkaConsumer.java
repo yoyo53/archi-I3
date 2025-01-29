@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
@@ -48,10 +47,26 @@ public class KafkaConsumer {
                     break;
                 case "InvestmentCreated":
                     Investment investment = objectMapper.convertValue(message.get(PAYLOAD), Investment.class);
-                    propertyService.createInvestment(investment);
+                    Long propertyId = message.get(PAYLOAD).get("property").get("id").asLong();
+                    propertyService.createInvestment(investment, propertyId);
                     break;
-                
-    
+                case "InvestmentSuccessful":
+                case "InvestmentFailed":
+                case "InvestmentCompleted":
+                case "InvestmentCancelled":
+                    Investment investmentUpdated = objectMapper.convertValue(message.get(PAYLOAD), Investment.class);
+                    Long propertyIdUpdated = message.get(PAYLOAD).get("property").get("id").asLong();
+                    propertyService.updateInvestmentStatus(investmentUpdated, propertyIdUpdated);
+                    break;
+                case "TimeEvent":
+                    ObjectNode payloadTime = (ObjectNode) message.get(PAYLOAD);
+                    if (payloadTime.has("default_date")) {
+                        propertyService.setDefaultDate(payloadTime.get("default_date").asText());
+                    } else if (payloadTime.has("date")) {
+                        propertyService.changeDate(payloadTime.get("date").asText());
+                    }
+                    break;
+
                 default:
                     logger.warn("Unknown event received");
                     break;

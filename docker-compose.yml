@@ -3,15 +3,15 @@ services:
     container_name: kafka-service
     image: apache/kafka:latest
     ports:
-      - "9092:9092"
+      - "${KAFKA_PORT}:${KAFKA_PORT}"
     environment:
       KAFKA_NODE_ID: 1
       KAFKA_PROCESS_ROLES: broker,controller
-      KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-service:9092
+      KAFKA_LISTENERS: PLAINTEXT://:${KAFKA_PORT},CONTROLLER://:${KAFKA_CONTROLLER_PORT}
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://${KAFKA_URL}
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
-      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:9093
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:${KAFKA_CONTROLLER_PORT}
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
@@ -21,7 +21,7 @@ services:
     volumes:
       - ./kafka/log4j.properties:/opt/kafka/config/custom-log4j.properties
     healthcheck:
-      test: ["CMD", "nc", "-z", "localhost", "9092"]
+      test: ["CMD", "nc", "-z", "localhost", "${KAFKA_PORT}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -33,15 +33,18 @@ services:
         condition: service_healthy
     build: userservice
     ports:
-      - "8081:8081"
-    env_file:
-      - userservice/.env
+      - "${USER_SERVER_PORT}:${USER_SERVER_PORT}"
     environment:
-      - SERVER_PORT=8081
-      - SPRING_KAFKA_URL=kafka-service:9092
-      - LOGGING_LEVEL_ROOT=WARN
+      - SERVER_PORT=${USER_SERVER_PORT}
+      - SPRING_DATASOURCE_URL=${USER_DATASOURCE_URL}
+      - SPRING_DATASOURCE_USERNAME=${USER_DATASOURCE_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${USER_DATASOURCE_PASSWORD}
+      - SPRING_KAFKA_URL=${KAFKA_URL}
+      - SPRING_KAFKA_GROUP=${USER_KAFKA_GROUP}
+      - SPRING_KAFKA_TOPIC=${KAFKA_TOPIC}
+      - LOGGING_LEVEL_ROOT=${LOGGING_LEVEL}
     healthcheck:
-      test: ["CMD", "nc", "-z", "localhost", "8081"]
+      test: ["CMD", "nc", "-z", "localhost", "${USER_SERVER_PORT}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -53,16 +56,19 @@ services:
         condition: service_healthy
     build: propertyservice
     ports:
-      - "8082:8082"
-    env_file:
-      - propertyservice/.env
+      - "${PROPERTY_SERVER_PORT}:${PROPERTY_SERVER_PORT}"
     environment:
-      - LOCAL_TIMEZONE=Europe/Paris
-      - SERVER_PORT=8082
-      - SPRING_KAFKA_URL=kafka-service:9092
-      - LOGGING_LEVEL_ROOT=WARN
+      - SERVER_PORT=${PROPERTY_SERVER_PORT}
+      - SPRING_DATASOURCE_URL=${PROPERTY_DATASOURCE_URL}
+      - SPRING_DATASOURCE_USERNAME=${PROPERTY_DATASOURCE_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${PROPERTY_DATASOURCE_PASSWORD}
+      - SPRING_KAFKA_URL=${KAFKA_URL}
+      - SPRING_KAFKA_GROUP=${PROPERTY_KAFKA_GROUP}
+      - SPRING_KAFKA_TOPIC=${KAFKA_TOPIC}
+      - LOCAL_TIMEZONE=${LOCAL_TIMEZONE}
+      - LOGGING_LEVEL_ROOT=${LOGGING_LEVEL}
     healthcheck:
-      test: ["CMD", "nc", "-z", "localhost", "8082"]
+      test: ["CMD", "nc", "-z", "localhost", "${PROPERTY_SERVER_PORT}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -74,15 +80,19 @@ services:
         condition: service_healthy
     build: investmentservice
     ports:
-      - "8083:8083"
-    env_file:
-      - investmentservice/.env
+      - "${INVESTMENT_SERVER_PORT}:${INVESTMENT_SERVER_PORT}"
     environment:
-      - SERVER_PORT=8083
-      - SPRING_KAFKA_URL=kafka-service:9092
-      - LOGGING_LEVEL_ROOT=WARN
+      - SERVER_PORT=${INVESTMENT_SERVER_PORT}
+      - SPRING_DATASOURCE_URL=${INVESTMENT_DATASOURCE_URL}
+      - SPRING_DATASOURCE_USERNAME=${INVESTMENT_DATASOURCE_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${INVESTMENT_DATASOURCE_PASSWORD}
+      - SPRING_KAFKA_URL=${KAFKA_URL}
+      - SPRING_KAFKA_GROUP=${INVESTMENT_KAFKA_GROUP}
+      - SPRING_KAFKA_TOPIC=${KAFKA_TOPIC}
+      - LOCAL_TIMEZONE=${LOCAL_TIMEZONE}
+      - LOGGING_LEVEL_ROOT=${LOGGING_LEVEL}
     healthcheck:
-      test: ["CMD", "nc", "-z", "localhost", "8083"]
+      test: ["CMD", "nc", "-z", "localhost", "${INVESTMENT_SERVER_PORT}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -94,15 +104,18 @@ services:
         condition: service_healthy
     build: walletservice
     ports:
-      - "8084:8084"
-    env_file:
-      - walletservice/.env
+      - "${WALLET_SERVER_PORT}:${WALLET_SERVER_PORT}"
     environment:
-      - SERVER_PORT=8084
-      - SPRING_KAFKA_URL=kafka-service:9092
-      - LOGGING_LEVEL_ROOT=WARN
+      - SERVER_PORT=${WALLET_SERVER_PORT}
+      - SPRING_DATASOURCE_URL=${WALLET_DATASOURCE_URL}
+      - SPRING_DATASOURCE_USERNAME=${WALLET_DATASOURCE_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${WALLET_DATASOURCE_PASSWORD}
+      - SPRING_KAFKA_URL=${KAFKA_URL}
+      - SPRING_KAFKA_GROUP=${WALLET_KAFKA_GROUP}
+      - SPRING_KAFKA_TOPIC=${KAFKA_TOPIC}
+      - LOGGING_LEVEL_ROOT=${LOGGING_LEVEL}
     healthcheck:
-      test: ["CMD", "nc", "-z", "localhost", "8084"]
+      test: ["CMD", "nc", "-z", "localhost", "${WALLET_SERVER_PORT}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -114,16 +127,19 @@ services:
         condition: service_healthy
     build: paymentservice
     ports:
-      - "8085:8085"
-    env_file:
-      - paymentservice/.env
+      - "${PAYMENT_SERVER_PORT}:${PAYMENT_SERVER_PORT}"
     environment:
-      - LOCAL_TIMEZONE=Europe/Paris
-      - SERVER_PORT=8085
-      - SPRING_KAFKA_URL=kafka-service:9092
-      - LOGGING_LEVEL_ROOT=WARN
+      - SERVER_PORT=${PAYMENT_SERVER_PORT}
+      - SPRING_DATASOURCE_URL=${PAYMENT_DATASOURCE_URL}
+      - SPRING_DATASOURCE_USERNAME=${PAYMENT_DATASOURCE_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${PAYMENT_DATASOURCE_PASSWORD}
+      - SPRING_KAFKA_URL=${KAFKA_URL}
+      - SPRING_KAFKA_GROUP=${PAYMENT_KAFKA_GROUP}
+      - SPRING_KAFKA_TOPIC=${KAFKA_TOPIC}
+      - LOCAL_TIMEZONE=${LOCAL_TIMEZONE}
+      - LOGGING_LEVEL_ROOT=${LOGGING_LEVEL}
     healthcheck:
-      test: ["CMD", "nc", "-z", "localhost", "8085"]
+      test: ["CMD", "nc", "-z", "localhost", "${PAYMENT_SERVER_PORT}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -135,16 +151,40 @@ services:
         condition: service_healthy
     build: certificateservice
     ports:
-      - "8087:8087"
-    env_file:
-      - certificateservice/.env
+      - "${CERTIFICATE_SERVER_PORT}:${CERTIFICATE_SERVER_PORT}"
     environment:
-      - LOCAL_TIMEZONE=Europe/Paris
-      - SERVER_PORT=8087
-      - SPRING_KAFKA_URL=kafka-service:9092
-      - LOGGING_LEVEL_ROOT=WARN
+      - SERVER_PORT=${CERTIFICATE_SERVER_PORT}
+      - SPRING_DATASOURCE_URL=${CERTIFICATE_DATASOURCE_URL}
+      - SPRING_DATASOURCE_USERNAME=${CERTIFICATE_DATASOURCE_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${CERTIFICATE_DATASOURCE_PASSWORD}
+      - SPRING_KAFKA_URL=${KAFKA_URL}
+      - SPRING_KAFKA_GROUP=${CERTIFICATE_KAFKA_GROUP}
+      - SPRING_KAFKA_TOPIC=${KAFKA_TOPIC}
+      - LOCAL_TIMEZONE=${LOCAL_TIMEZONE}
+      - LOGGING_LEVEL_ROOT=${LOGGING_LEVEL}
     healthcheck:
-      test: ["CMD", "nc", "-z", "localhost", "8087"]
+      test: ["CMD", "nc", "-z", "localhost", "${CERTIFICATE_SERVER_PORT}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  time-service:
+    container_name: time-service
+    depends_on:
+      kafka-service:
+        condition: service_healthy
+    build: timeservice
+    ports:
+      - "${TIME_SERVER_PORT}:${TIME_SERVER_PORT}"
+    environment:
+      - SERVER_PORT=${TIME_SERVER_PORT}
+      - SPRING_KAFKA_URL=${KAFKA_URL}
+      - SPRING_KAFKA_GROUP=${TIME_KAFKA_GROUP}
+      - SPRING_KAFKA_TOPIC=${KAFKA_TOPIC}
+      - LOCAL_TIMEZONE=${LOCAL_TIMEZONE}
+      - LOGGING_LEVEL_ROOT=${LOGGING_LEVEL}
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "${TIME_SERVER_PORT}"]
       interval: 10s
       timeout: 5s
       retries: 5

@@ -1,12 +1,13 @@
 package investment.service.investmentservice.controller;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import investment.service.investmentservice.model.Investment;
 import investment.service.investmentservice.service.InvestmentService;
-
 import investment.service.investmentservice.dto.InvestmentDTO;
 
 @RestController
@@ -14,6 +15,7 @@ import investment.service.investmentservice.dto.InvestmentDTO;
 public class InvestmentController {
 
     private final InvestmentService investmentService;
+    private static final Logger logger = LoggerFactory.getLogger(InvestmentController.class);
 
     @Autowired
     public InvestmentController(InvestmentService investmentService) {
@@ -35,7 +37,7 @@ public class InvestmentController {
     }
 
     @PostMapping
-    public ResponseEntity<Investment> createInvestment(@RequestBody InvestmentDTO investmentDTO, @RequestHeader("Authorization") Long userID) {
+    public ResponseEntity<Object> createInvestment(@RequestBody InvestmentDTO investmentDTO, @RequestHeader("Authorization") Long userID) {
         try {
             System.out.println("Investment Details: ");
             System.out.println("UserID: " + userID);
@@ -45,7 +47,8 @@ public class InvestmentController {
             Investment result = investmentService.createInvestment(investmentDTO, userID);
             return ResponseEntity.ok(result);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
+            logger.error("Error creating investment: ", e);
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 

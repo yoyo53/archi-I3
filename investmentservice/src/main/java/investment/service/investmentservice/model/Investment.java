@@ -1,10 +1,13 @@
 package investment.service.investmentservice.model;
 
-import java.time.LocalDate;
-
 import jakarta.validation.constraints.NotNull;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -14,7 +17,26 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "investments")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Investment {
+
+    public enum InvestmentStatus {
+        PENDING("PENDING"),
+        SUCCESS("SUCCESS"),
+        FAILED("FAILED"),
+        CANCELLED("CANCELLED"),
+        COMPLETED("COMPLETED");
+    
+        private final String description;
+    
+        InvestmentStatus(String description) {
+            this.description = description;
+        }
+    
+        public String getDescription() {
+            return description;
+        }
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,10 +54,10 @@ public class Investment {
     private Double amountInvested;
 
     @NotNull
-    private LocalDate investmentDate;
+    private String investmentDate;
 
     @NotNull
-    private Long sharesOwned;
+    private Double sharesOwned;
 
     @OneToOne
     private Certificat certificat;
@@ -43,22 +65,21 @@ public class Investment {
     @OneToOne
     private Payment payment;
 
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    private InvestmentStatus status;
+
     // Constructeurs
     public Investment() {
     }
 
-    public Investment(Property property, User user, Double amountInvested) {
-        this.property = property;
-        this.user = user;
-        this.amountInvested = amountInvested;
-    }
-
-    public Investment(Property property, User user, Double amountInvested, LocalDate investmentDate, Long sharesOwned) {
+    public Investment(Property property, User user, String investmentDate, Double amountInvested) {
         this.property = property;
         this.user = user;
         this.amountInvested = amountInvested;
         this.investmentDate = investmentDate;
-        this.sharesOwned = sharesOwned;
+        this.sharesOwned = amountInvested / property.getPrice();
+        this.status = InvestmentStatus.PENDING;
     }
 
     // Getters et Setters
@@ -94,19 +115,19 @@ public class Investment {
         this.amountInvested = amountInvested;
     }
 
-    public LocalDate getInvestmentDate() {
+    public String getInvestmentDate() {
         return investmentDate;
     }
 
-    public void setInvestmentDate(LocalDate investmentDate) {
+    public void setInvestmentDate(String investmentDate) {
         this.investmentDate = investmentDate;
     }
 
-    public Long getSharesOwned() {
+    public Double getSharesOwned() {
         return sharesOwned;
     }
 
-    public void setSharesOwned(Long sharesOwned) {
+    public void setSharesOwned(Double sharesOwned) {
         this.sharesOwned = sharesOwned;
     }
 
@@ -125,4 +146,14 @@ public class Investment {
     public void setPayment(Payment payment) {
         this.payment = payment;
     }
+
+    public String getStatus() {
+        return status.getDescription();
+    }
+
+    public void setStatus(String status) {
+        this.status = InvestmentStatus.valueOf(status);
+    }
+
+    
 }

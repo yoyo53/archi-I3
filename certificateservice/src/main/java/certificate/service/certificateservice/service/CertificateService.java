@@ -37,6 +37,8 @@ public class CertificateService {
     private final String EVENT_TYPE = "EventType";
     private final String PAYLOAD = "Payload";
 
+    private LocalDate systemDate;
+
     @Autowired
     public CertificateService(
             InvestmentRepository investmentRepository,
@@ -47,10 +49,21 @@ public class CertificateService {
         this.certificateRepository = certificateRepository;
         this.kafkaProducer = kafkaProducer;
         this.objectMapper = objectMapper;
+        this.systemDate = null;
     }
 
     public Investment createInvestment(@NotNull @Valid Investment investment) {
         Investment savedInvestment = investmentRepository.save(investment);
+        return savedInvestment;
+    }
+
+    public Investment updateInvestmentStatus(@NotNull @Valid Long investmentId, String status) {
+        Investment investment = investmentRepository.findById(investmentId).orElseThrow();
+        investment.setStatus(status);
+        Investment savedInvestment = investmentRepository.save(investment);
+        if (savedInvestment.getStatus().equals(Investment.InvestmentStatus.COMPLETED.getDescription())) {
+            InvestmentFulfilled(investmentId);
+        }
         return savedInvestment;
     }
 
@@ -78,8 +91,7 @@ public class CertificateService {
         Certificate certificate = createCertificateFromDTO(certificateDTO);
         Certificate savedCertificate = certificateRepository.save(certificate);
 
-        ObjectNode payload = objectMapper.createObjectNode()
-                .put("id", savedCertificate.getId());
+        ObjectNode payload = objectMapper.convertValue(savedCertificate, ObjectNode.class);
         ObjectNode event = objectMapper.createObjectNode()
                 .put(EVENT_TYPE, "CertificateCreated")
                 .set(PAYLOAD, payload);
@@ -109,9 +121,48 @@ public class CertificateService {
         }
     }
 
+    public void setDefaultDate(String defaultDate) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate date = LocalDate.parse(defaultDate, formatter);
+        this.systemDate = date;
+    }
+
+    public void changeDate(String date) {
+        // Add logic when date changed
+        // Parse the date and update the system date
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate newDate = LocalDate.parse(date, formatter);
+        this.systemDate = newDate;
+
+        // Check if there are certificates with the new date and send a message
+        Iterable<Certificate> certificates = certificateRepository.findByEmissionDate(date);
+        for (Certificate certificate : certificates) {
+            // if (certificate.getEmissionDate().equals(date)) {
+                // Send a message to the Kafka topic
+                ObjectNode payload = objectMapper.convertValue(certificate, ObjectNode.class);
+                ObjectNode event = objectMapper.createObjectNode()
+                        .put(EVENT_TYPE, "CertificateDelivery")
+                        .set(PAYLOAD, payload);
+                kafkaProducer.sendMessage(topic, event);
+            // }
+        }
+    }
+
+    public void InvestmentFulfilled(Long investmentID) {
+        // Add 14 days to the system date for the delivery date
+        String deliveryDate = systemDate.plusDays(14).format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+
+        // Get the investment from the investment ID
+        Investment investmentFund = getInvestment(investmentID);
+
+        // Create and save a certificate with the investment and delivery date
+        Certificate certificate = new Certificate(investmentFund, deliveryDate);
+        certificateRepository.save(certificate);
+    }
+
     private Certificate createCertificateFromDTO(@NotNull @Valid CertificateDTO certificateDTO) {
         Investment investment = investmentRepository.findById(certificateDTO.getInvestmentId()).orElseThrow();
-        return new Certificate(investment, getISOdate());
+        return new Certificate(investment, certificateDTO.getEmissionDate());
     }
 
     private String getISOdate() {

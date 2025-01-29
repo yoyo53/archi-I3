@@ -1,6 +1,8 @@
 package investment.service.investmentservice.model;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToOne;
@@ -13,6 +15,7 @@ public class Certificat {
     @Id
     private Long id;
 
+    @JsonIgnore
     @OneToOne(mappedBy = "certificat")
     private Investment investment;
 

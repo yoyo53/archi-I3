@@ -16,7 +16,8 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import property.service.propertyservice.dto.PropertyDTO;
+import property.service.propertyservice.dto.CreatePropertyDTO;
+import property.service.propertyservice.dto.UpdatePropertyDTO;
 import property.service.propertyservice.model.Property;
 import property.service.propertyservice.service.PropertyService;
 
@@ -34,10 +35,10 @@ public class PropertyController {
 
 
     @PostMapping
-    public ResponseEntity<Object> createProperty(@RequestBody Property property, @RequestHeader("Authorization") Long userID) {
+    public ResponseEntity<Object> createProperty(@RequestBody CreatePropertyDTO propertyDTO, @RequestHeader("Authorization") Long userID) {
         try{
-            Property propertySaved = propertyService.createProperty(property, userID);
-            URI resourceLocation = new URI("/api/properties/" + property.getId());
+            Property propertySaved = propertyService.createProperty(propertyDTO, userID);
+            URI resourceLocation = new URI("/api/properties/" + propertySaved.getId());
             return ResponseEntity.created(resourceLocation).body(propertySaved);
         }catch(Exception e){
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -86,7 +87,7 @@ public class PropertyController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Object> updateProperty(@PathVariable Long id, @RequestBody PropertyDTO propertyDTO, @RequestHeader("Authorization") Long userID) {
+    public ResponseEntity<Object> updateProperty(@PathVariable Long id, @RequestBody UpdatePropertyDTO propertyDTO, @RequestHeader("Authorization") Long userID) {
         try {
             Property newProperty = propertyService.updateProperty(id, propertyDTO, userID);
             return ResponseEntity.ok().body(newProperty);

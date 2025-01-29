@@ -1,17 +1,36 @@
 package property.service.propertyservice.model;
 
-import java.time.LocalDate;
-
 import jakarta.validation.constraints.NotNull;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "investments")
+
 public class Investment {
+
+    public enum InvestmentStatus {
+        PENDING("PENDING"),
+        SUCCESS("SUCCESS"),
+        FAILED("FAILED"),
+        CANCELLED("CANCELLED"),
+        COMPLETED("COMPLETED");
+    
+        private final String description;
+    
+        InvestmentStatus(String description) {
+            this.description = description;
+        }
+    
+        public String getDescription() {
+            return description;
+        }
+    }
 
     @Id
     private Long id;
@@ -24,20 +43,13 @@ public class Investment {
     private Double amountInvested;
 
     @NotNull
-    private LocalDate investmentDate;
+    private String investmentDate;
+
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    private InvestmentStatus status;
 
     public Investment() {
-    }
-
-    public Investment(Property property, Double amountInvested) {
-        this.property = property;
-        this.amountInvested = amountInvested;
-    }
-
-    public Investment(Property property, Double amountInvested, LocalDate investmentDate) {
-        this.property = property;
-        this.amountInvested = amountInvested;
-        this.investmentDate = investmentDate;
     }
 
     // Getters et Setters
@@ -64,13 +76,19 @@ public class Investment {
         this.amountInvested = amountInvested;
     }
 
-    public LocalDate getInvestmentDate() {
+    public String getInvestmentDate() {
         return investmentDate;
     }
 
-    public void setInvestmentDate(LocalDate investmentDate) {
+    public void setInvestmentDate(String investmentDate) {
         this.investmentDate = investmentDate;
     }
 
+    public String getStatus() {
+        return status.getDescription();
+    }
+    public void setStatus(String status) {
+        this.status = InvestmentStatus.valueOf(status);
+    }
 }
 
