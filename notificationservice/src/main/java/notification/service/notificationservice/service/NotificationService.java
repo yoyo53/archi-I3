@@ -7,9 +7,10 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import notification.service.notificationservice.kafka.KafkaProducer;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Service
 public class NotificationService {
@@ -22,6 +23,8 @@ public class NotificationService {
 
     private final String EVENT_TYPE = "EventType";
     private final String PAYLOAD = "Payload";
+
+    private static Logger logger = LoggerFactory.getLogger(NotificationService.class);
 
     @Autowired
     public NotificationService(
@@ -39,5 +42,6 @@ public class NotificationService {
         message.put(PAYLOAD, subject);
         message.set(PAYLOAD, payload);
         kafkaProducer.sendMessage(topic, message);
+        logger.warn(String.format("#### -> Sent message -> %s", message.toString()));
     }
 }

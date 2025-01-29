@@ -32,7 +32,7 @@ public class KafkaConsumer {
 
     @KafkaListener(topics = "${spring.kafka.topic}", containerFactory = "kafkaListenerContainerFactory")
     public void consume(ObjectNode message) {
-        logger.warn(String.format("#### -> Consumed message -> %s", message.toString()));
+        logger.info(String.format("#### -> Consumed message -> %s", message.toString()));
 
         try {
             String eventType = message.get(EVENT_TYPE).asText();
