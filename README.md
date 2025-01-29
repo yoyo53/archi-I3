@@ -17,6 +17,7 @@ The solution is implented via a mix of microservices architecture and event driv
 ![diagram][architecture_diagram]
 
 
+
 ## Installation
 
 
