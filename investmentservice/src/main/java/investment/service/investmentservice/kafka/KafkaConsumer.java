@@ -54,9 +54,12 @@ public class KafkaConsumer {
                     break;
 
                 case "PaymentCreated":
-                    Payment payment = objectMapper.convertValue(message.get(PAYLOAD), Payment.class);
-                    Long InvestmentId = message.get(PAYLOAD).get("InvestmentID").asLong();
-                    investmentService.createPayment(payment, InvestmentId);
+                    // check if InvestmentID is present
+                    if (message.get(PAYLOAD).has("InvestmentID")) {
+                        Payment payment = objectMapper.convertValue(message.get(PAYLOAD), Payment.class);
+                        Long InvestmentId = message.get(PAYLOAD).get("InvestmentID").asLong();
+                        investmentService.createPayment(payment, InvestmentId);
+                    }
                     break;
                 
                 case "CertificatCreated":
