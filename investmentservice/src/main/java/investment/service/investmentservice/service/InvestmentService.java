@@ -184,27 +184,31 @@ public class InvestmentService {
     }
 
     public Payment updatePaymentStatus(Payment payment) {
-        Payment updatedPayment = paymentRepository.save(payment);
-        
-        Investment investment = investmentRepository.findByPayment_id(payment.getId()).orElseThrow();
-
-        ObjectNode event = new ObjectMapper().createObjectNode();
-        if(payment.getStatus().equals(PaymentStatus.SUCCESS.getDescription())){
-            investment.setStatus(InvestmentStatus.SUCCESS.getDescription());
-            event.put(EVENT_TYPE, "InvestmentSuccessful");
-
-        }else{
-            investment.setStatus(InvestmentStatus.FAILED.getDescription());
-            event.put(EVENT_TYPE, "InvestmentFailed");
+        Investment investment = investmentRepository.findByPayment_id(payment.getId()).orElse(null);
+        if (investment != null) {
+            Payment updatedPayment = paymentRepository.save(payment);
+            
+    
+            ObjectNode event = new ObjectMapper().createObjectNode();
+            if(payment.getStatus().equals(PaymentStatus.SUCCESS.getDescription())){
+                investment.setStatus(InvestmentStatus.SUCCESS.getDescription());
+                event.put(EVENT_TYPE, "InvestmentSuccessful");
+    
+            }else{
+                investment.setStatus(InvestmentStatus.FAILED.getDescription());
+                event.put(EVENT_TYPE, "InvestmentFailed");
+            }
+    
+            Investment updatedInvestment = investmentRepository.save(investment);
+            ObjectNode payload = new ObjectMapper().convertValue(updatedInvestment, ObjectNode.class);
+            event.set(PAYLOAD, payload);
+    
+            kafkaProducer.sendMessage(topic, event);
+            
+            return updatedPayment;
         }
 
-        Investment updatedInvestment = investmentRepository.save(investment);
-        ObjectNode payload = new ObjectMapper().convertValue(updatedInvestment, ObjectNode.class);
-        event.set(PAYLOAD, payload);
-
-        kafkaProducer.sendMessage(topic, event);
-
-        return updatedPayment;
+        return null;
     }
 
     private String getISOdate() {
