@@ -62,6 +62,20 @@ public class PaymentService {
         return savedPayment;
     }
 
+    public Payment createPayment(Long userID, Double amount) {
+        Payment payment = new Payment(userID, getISOdate(), amount);
+        Payment savedPayment = paymentRepository.save(payment);
+
+        //Json Object
+        ObjectNode event = new ObjectMapper().createObjectNode();
+        event.put(EVENT_TYPE, "PaymentCreated");
+        event.set(PAYLOAD, new ObjectMapper().convertValue(savedPayment, ObjectNode.class));
+
+        kafkaProducer.sendMessage(topic, event);
+
+        return savedPayment;
+    }
+
     public Iterable<Payment> getPayments(){
         return paymentRepository.findAll();
     }

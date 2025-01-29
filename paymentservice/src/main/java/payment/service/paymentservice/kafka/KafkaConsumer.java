@@ -47,7 +47,11 @@ public class KafkaConsumer {
                     ObjectNode walletFailedPayload = (ObjectNode) message.get(PAYLOAD);
                     paymentService.updatePaymentStatus(walletFailedPayload.get("paymentId").asLong(), PaymentStatus.FAILED.getDescription());
                     break;
-
+                case "IncomeCreated":
+                    ObjectNode incomePayload = (ObjectNode) message.get(PAYLOAD);
+                    paymentService.createPayment(incomePayload.get("investment").get("userId").asLong(), 
+                            -incomePayload.get("amount").asDouble());
+                    break;
                 case "TimeEvent":
                     ObjectNode payloadTime = (ObjectNode) message.get(PAYLOAD);
                     if (payloadTime.has("default_date")) {

@@ -168,6 +168,30 @@ services:
       timeout: 5s
       retries: 5
 
+  income-service:
+    container_name: income-service
+    depends_on:
+      kafka-service:
+        condition: service_healthy
+    build: incomeservice
+    ports:
+      - "${INCOME_SERVER_PORT}:${INCOME_SERVER_PORT}"
+    environment:
+      - SERVER_PORT=${INCOME_SERVER_PORT}
+      - SPRING_DATASOURCE_URL=${INCOME_DATASOURCE_URL}
+      - SPRING_DATASOURCE_USERNAME=${INCOME_DATASOURCE_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${INCOME_DATASOURCE_PASSWORD}
+      - SPRING_KAFKA_URL=${KAFKA_URL}
+      - SPRING_KAFKA_GROUP=${INCOME_KAFKA_GROUP}
+      - SPRING_KAFKA_TOPIC=${KAFKA_TOPIC}
+      - LOCAL_TIMEZONE=${LOCAL_TIMEZONE}
+      - LOGGING_LEVEL_ROOT=${LOGGING_LEVEL}
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "${INCOME_SERVER_PORT}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   time-service:
     container_name: time-service
     depends_on:
