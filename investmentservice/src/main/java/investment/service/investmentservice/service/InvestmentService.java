@@ -64,8 +64,6 @@ public class InvestmentService {
     private final String EVENT_TYPE = "EventType";
     private final String PAYLOAD = "Payload";
 
-    private LocalDate systemDate;
-
     @Value("${spring.application.timezone}")
     private String timeZone;
 
@@ -77,7 +75,6 @@ public class InvestmentService {
         this.paymentRepository = paymentRepository;
         this.certificateRepository = certificateRepository;
         this.kafkaProducer = kafkaProducer;
-        this.systemDate = null;
     }
 
     // Investment
@@ -230,17 +227,5 @@ public class InvestmentService {
         df.setTimeZone(tz);
         return df.format(new Date());
 
-    }
-    public void setDefaultDate(String defaultDate) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        LocalDate date = LocalDate.parse(defaultDate, formatter);
-        this.systemDate = date;
-    }
-
-    public void changeDate(String date) {
-        // Add logic when date changed
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        LocalDate newDate = LocalDate.parse(date, formatter);
-        this.systemDate = newDate;
     }
 }
