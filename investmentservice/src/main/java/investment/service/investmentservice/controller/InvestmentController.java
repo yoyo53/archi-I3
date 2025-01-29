@@ -1,5 +1,7 @@
 package investment.service.investmentservice.controller;
 
+import java.net.URI;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -33,7 +35,8 @@ public class InvestmentController {
     public ResponseEntity<Object> createInvestment(@RequestBody InvestmentDTO investmentDTO, @RequestHeader("Authorization") Long userID) {
         try {
             Investment result = investmentService.createInvestment(investmentDTO, userID);
-            return ResponseEntity.ok(result);
+            URI location = new URI("/api/investments/" + result.getId());
+            return ResponseEntity.created(location).body(result);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
