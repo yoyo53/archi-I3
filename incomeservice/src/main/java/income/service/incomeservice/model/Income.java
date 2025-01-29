@@ -4,9 +4,9 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
-import jakarta.persistence.OneToOne;
 
 @Entity
 @Table(name = "incomes")
@@ -17,7 +17,7 @@ public class Income {
     private Long id;
 
     @NotNull
-    @OneToOne
+    @ManyToOne
     private Investment investment;
 
     @NotNull

@@ -32,7 +32,7 @@ public class IncomeService {
     private final CertificateRepository certificateRepository;
     private final KafkaProducer kafkaProducer;
     private final ObjectMapper objectMapper;
-
+    
     private LocalDate systemDate;
 
     private final String EVENT_TYPE = "EventType";
@@ -86,10 +86,11 @@ public class IncomeService {
         if (systemDate.getDayOfMonth() == 1) {
             Iterable<Investment> investments =  investmentRepository.findByCertificate_EmissionDateBefore(date);
             for (Investment investment : investments) {
-                Income income = new Income(investment, date, investment.getAmountInvested() * investment.getProperty().getAnnualRentalIncomeRate() / 12);
+                Income income = new Income(investment, date, (investment.getAmountInvested() * ((investment.getProperty().getAnnualRentalIncomeRate() / 100)) / 12));
+
 
                 if (systemDate.getMonthValue() == 1) {
-                    income.setAmount(income.getAmount() + investment.getAmountInvested() * investment.getProperty().getAppreciationRate());
+                    income.setAmount(income.getAmount() + investment.getAmountInvested() * investment.getProperty().getAppreciationRate() / 100);
                 }
 
                 incomeRepository.save(income);
