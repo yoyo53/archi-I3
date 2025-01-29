@@ -18,13 +18,17 @@ public class UserController {
         this.userService = userService;
     }
 
-    @PostMapping("/create")
+    @PostMapping("/register")
     public ResponseEntity<String> createUser(@RequestBody User user) {
-        String result = userService.createUser(user);
-        if (result.equals("User created successfully")) {
-            return ResponseEntity.created(null).body(result);
-        } else {
-            return ResponseEntity.badRequest().body(result);
+        try {
+            String result = userService.createUser(user);
+            if (result.equals("User created successfully")) {
+                return ResponseEntity.created(null).body(result);
+            } else {
+                return ResponseEntity.badRequest().body(result);
+            }
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("User creation failed");
         }
     }
 
