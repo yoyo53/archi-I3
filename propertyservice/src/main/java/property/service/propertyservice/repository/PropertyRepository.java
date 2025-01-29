@@ -17,6 +17,6 @@ public interface PropertyRepository extends JpaRepository<Property, Long> {
     @Query("SELECT SUM(i.amountInvested) FROM Investment i WHERE i.property.id = :propertyId")
     Double sumInvestedAmountById(Long propertyId);
 
-    Iterable<Property> findByStatusAndFundingDeadlineBeforeOrEqual(PropertyStatus status, String fundingDeadline);
+    Iterable<Property> findByStatusAndFundingDeadlineLessThanEqual(PropertyStatus status, String fundingDeadline);
     
 }

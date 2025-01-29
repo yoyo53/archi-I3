@@ -200,7 +200,7 @@ public class PropertyService {
         this.systemDate = newDate;
         String stringDate = systemDate.format(formatter);
 
-        Iterable<Property> properties = propertyRepository.findByStatusAndFundingDeadlineBeforeOrEqual(PropertyStatus.OPENED, stringDate);
+        Iterable<Property> properties = propertyRepository.findByStatusAndFundingDeadlineLessThanEqual(PropertyStatus.OPENED, stringDate);
         for(Property property : properties){
             property.setStatus(PropertyStatus.CLOSED.getDescription());
             Property savedProperty = propertyRepository.save(property);
