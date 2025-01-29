@@ -81,6 +81,10 @@ public class KafkaConsumer {
                     Property propertyClosed = objectMapper.convertValue(message.get(PAYLOAD), Property.class);
                     investmentService.updatePropertyStatus(propertyClosed);
                     break;
+                case "TimeEvent":
+                    ObjectNode payloadTime = (ObjectNode) message.get(PAYLOAD);
+                    investmentService.changeDate(payloadTime.get("date").asText());
+                    break;
                 default:
                     break;
             }

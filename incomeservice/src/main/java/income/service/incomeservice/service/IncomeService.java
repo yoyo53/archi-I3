@@ -3,8 +3,6 @@ package income.service.incomeservice.service;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -34,8 +32,6 @@ public class IncomeService {
     private final CertificateRepository certificateRepository;
     private final KafkaProducer kafkaProducer;
     private final ObjectMapper objectMapper;
-
-    private Logger logger = LoggerFactory.getLogger(IncomeService.class);
 
     private LocalDate systemDate;
 
@@ -82,30 +78,15 @@ public class IncomeService {
 
     }
 
-    public void setDefaultDate(String defaultDate) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        LocalDate date = LocalDate.parse(defaultDate, formatter);
-        this.systemDate = date;
-    }
-
     public void changeDate(String date) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         LocalDate newDate = LocalDate.parse(date, formatter);
         this.systemDate = newDate;
-        String dateString = systemDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 
-        logger.warn("Creating incomes for " + dateString);
         if (systemDate.getDayOfMonth() == 1) {
-            logger.warn("I am in the first day of the month");
-            Iterable<Investment> investments =  investmentRepository.findByCertificate_EmissionDateBefore(dateString).orElseThrow();
-            if (investments == null) {
-                System.out.println(("No investments found"));
-                return;
-            }
+            Iterable<Investment> investments =  investmentRepository.findByCertificate_EmissionDateBefore(date);
             for (Investment investment : investments) {
-                logger.warn("Creating income for investment " + investment.getId());
-                Income income = new Income(investment, dateString, investment.getAmountInvested() * investment.getProperty().getAnnualRentalIncomeRate() / 12);
-
+                Income income = new Income(investment, date, investment.getAmountInvested() * investment.getProperty().getAnnualRentalIncomeRate() / 12);
 
                 if (systemDate.getMonthValue() == 1) {
                     income.setAmount(income.getAmount() + investment.getAmountInvested() * investment.getProperty().getAppreciationRate());

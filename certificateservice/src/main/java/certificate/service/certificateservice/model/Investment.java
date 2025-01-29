@@ -1,7 +1,5 @@
 package certificate.service.certificateservice.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
@@ -11,7 +9,6 @@ import jakarta.persistence.Enumerated;
 
 @Entity
 @Table(name = "investments")
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class Investment {
 
     public enum InvestmentStatus {

@@ -54,11 +54,7 @@ public class KafkaConsumer {
                     break;
                 case "TimeEvent":
                     ObjectNode payloadTime = (ObjectNode) message.get(PAYLOAD);
-                    if (payloadTime.has("default_date")) {
-                        paymentService.setDefaultDate(payloadTime.get("default_date").asText());
-                    } else if (payloadTime.has("date")) {
-                        paymentService.changeDate(payloadTime.get("date").asText());
-                    }
+                    paymentService.changeDate(payloadTime.get("date").asText());
                     break;
                 case "InvestmentCancelled":
                     ObjectNode investmentCancelledPayload = (ObjectNode) message.get(PAYLOAD);

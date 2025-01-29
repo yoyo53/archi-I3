@@ -3,6 +3,8 @@ package investment.service.investmentservice.service;
 import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.TimeZone;
 
@@ -62,6 +64,8 @@ public class InvestmentService {
     private final String EVENT_TYPE = "EventType";
     private final String PAYLOAD = "Payload";
 
+    private LocalDate systemDate;
+
     @Value("${spring.application.timezone}")
     private String timeZone;
 
@@ -73,6 +77,7 @@ public class InvestmentService {
         this.paymentRepository = paymentRepository;
         this.certificateRepository = certificateRepository;
         this.kafkaProducer = kafkaProducer;
+        this.systemDate = null;
     }
 
     // Investment
@@ -220,10 +225,21 @@ public class InvestmentService {
     }
 
     private String getISOdate() {
-        TimeZone tz = TimeZone.getTimeZone(timeZone);
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'"); // Quoted "Z" to indicate UTC, no timezone offset
-        df.setTimeZone(tz);
-        return df.format(new Date());
+        if (systemDate != null) {
+            LocalDate currentDate = LocalDate.now();
+            String currentTime = DateTimeFormatter.ofPattern("HH:mm:ss").format(currentDate.atStartOfDay());
+            return systemDate.format(DateTimeFormatter.ISO_DATE) + "T" + currentTime + "Z";
+        } else {
+            TimeZone tz = TimeZone.getTimeZone(timeZone);
+            DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+            df.setTimeZone(tz);
+            return df.format(new Date());
+        }
+    }
 
+    public void changeDate(String date) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate newDate = LocalDate.parse(date, formatter);
+        this.systemDate = newDate;
     }
 }

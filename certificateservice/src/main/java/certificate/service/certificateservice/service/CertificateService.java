@@ -89,12 +89,6 @@ public class CertificateService {
         return certificateRepository.findById(id).orElse(null);
     }
 
-    public void setDefaultDate(String defaultDate) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        LocalDate date = LocalDate.parse(defaultDate, formatter);
-        this.systemDate = date;
-    }
-
     public void changeDate(String date) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         LocalDate newDate = LocalDate.parse(date, formatter);

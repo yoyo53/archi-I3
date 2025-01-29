@@ -104,26 +104,24 @@ public class PaymentService {
     }
 
     private String getISOdate() {
-        TimeZone tz = TimeZone.getTimeZone(timeZone);
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'"); // Quoted "Z" to indicate UTC, no timezone offset
-        df.setTimeZone(tz);
-        return df.format(new Date());
-
-    }
-
-    public void setDefaultDate(String defaultDate) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        LocalDate date = LocalDate.parse(defaultDate, formatter);
-        this.systemDate = date;
+        if (systemDate != null) {
+            LocalDate currentDate = LocalDate.now();
+            String currentTime = DateTimeFormatter.ofPattern("HH:mm:ss").format(currentDate.atStartOfDay());
+            return systemDate.format(DateTimeFormatter.ISO_DATE) + "T" + currentTime + "Z";
+        } else {
+            TimeZone tz = TimeZone.getTimeZone(timeZone);
+            DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+            df.setTimeZone(tz);
+            return df.format(new Date());
+        }
     }
 
     public void changeDate(String date) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         LocalDate newDate = LocalDate.parse(date, formatter);
         this.systemDate = newDate;
-        String dateString = systemDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 
-        Iterable<Payment> payments = paymentRepository.findByDateBeforeAndStatus(dateString, PaymentStatus.PENDING);
+        Iterable<Payment> payments = paymentRepository.findByDateBeforeAndStatus(date, PaymentStatus.PENDING);
         for (Payment payment : payments) {
             updatePaymentStatus(payment.getId(), PaymentStatus.FAILED.getDescription());
         }

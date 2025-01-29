@@ -57,14 +57,10 @@ public class KafkaConsumer {
                     Long investmentIdForCertificate = message.get(PAYLOAD).get("investment").get("id").asLong();
                     Certificate createdCertificate =  incomeService.createCertificate(certificate, investmentIdForCertificate);
                     incomeService.linkInvestmentToCertificate(investmentIdForCertificate, createdCertificate.getId());
-                    break;
                 case "TimeEvent":
                     ObjectNode payloadTime = (ObjectNode) message.get(PAYLOAD);
-                    if (payloadTime.has("default_date")) {
-                        incomeService.setDefaultDate(payloadTime.get("default_date").asText());
-                    } else if (payloadTime.has("date")) {
-                        incomeService.changeDate(payloadTime.get("date").asText());
-                    }
+                    incomeService.changeDate(payloadTime.get("date").asText());
+                    break;
                 default:
                     break;
             }
