@@ -10,7 +10,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import income.service.incomeservice.model.Certificate;
-import income.service.incomeservice.model.Investment;
 import income.service.incomeservice.model.Property;
 import income.service.incomeservice.service.IncomeService;
 
@@ -67,12 +66,11 @@ public class KafkaConsumer {
                         incomeService.changeDate(payloadTime.get("date").asText());
                     }
                 default:
-                    logger.warn("Unknown event received");
                     break;
             }
         }
         catch (Exception e) {
-            logger.error("Error parsing message", e);
+            logger.error("Error consuming message", e);
         }
     }
 }

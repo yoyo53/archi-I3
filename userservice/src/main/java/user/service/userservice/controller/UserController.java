@@ -1,6 +1,5 @@
 package user.service.userservice.controller;
 
-import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,7 +12,6 @@ import user.service.userservice.service.UserService;
 public class UserController {
 
     private final UserService userService;
-    private final Logger logger = org.slf4j.LoggerFactory.getLogger(UserController.class);
 
     @Autowired
     public UserController(UserService userService) {
@@ -26,7 +24,6 @@ public class UserController {
             User createdUser = userService.createUser(user);
             return ResponseEntity.created(null).body(createdUser);
         } catch (Exception e) {
-            logger.error("User creation failed", e);
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }

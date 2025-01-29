@@ -33,15 +33,12 @@ public class KafkaConsumer {
             
             switch (eventType) {
                 case "UserCreated":
-                    logger.info("Wallet created event received");
                     ObjectNode userPayload = (ObjectNode) message.get(PAYLOAD);
                     if (userPayload.get("role").asText().equals("INVESTOR")) {
-                        logger.info("Creating wallet for investor");
                         walletService.createWallet(userPayload.get("id").asLong());
                     } 
                     break;
                 case "PaymentCreated":
-                    logger.info("Payment processed event received");
                     ObjectNode paymentPayload = (ObjectNode) message.get(PAYLOAD);
                     Long paymentId = paymentPayload.get("id").asLong();
                     Long userId = paymentPayload.get("userID").asLong();
@@ -49,12 +46,11 @@ public class KafkaConsumer {
                     walletService.processPayment(userId, amount, paymentId);
                     break;
                 default:
-                    logger.warn("Unknown event received");
                     break;
             }
         }
         catch (Exception e) {
-            logger.error("Error parsing message", e);
+            logger.error("Error consuming message", e);
         }
     }
 }

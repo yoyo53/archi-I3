@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import notification.service.notificationservice.model.Investment;
+import notification.service.notificationservice.model.Property;
 import notification.service.notificationservice.model.User;
 import notification.service.notificationservice.model.User.UserRole;
 import notification.service.notificationservice.service.NotificationService;
@@ -33,7 +34,7 @@ public class KafkaConsumer {
 
     @KafkaListener(topics = "${spring.kafka.topic}", containerFactory = "kafkaListenerContainerFactory")
     public void consume(ObjectNode message) {
-        logger.warn(String.format("Consuming message: %s", message.toString()));
+        logger.warn(String.format("#### -> Consumed message -> %s", message.toString()));
 
         try {
             String eventType = message.get(EVENT_TYPE).asText();
@@ -42,9 +43,12 @@ public class KafkaConsumer {
                 case "UserCreated":
                     User user = objectMapper.convertValue(message.get(PAYLOAD), User.class);
                     if (user.getRole().equals(UserRole.AGENT.getDescription())) {
-                        logger.warn("Adding agent in database");
                         notificationService.createAgent(user);
                     }
+                    break;
+                case "PropertyCreated":
+                    Property property = objectMapper.convertValue(message.get(PAYLOAD), Property.class);
+                    notificationService.createProperty(property);
                     break;
                 case "InvestmentCreated":
                     Investment investment = objectMapper.convertValue(message.get(PAYLOAD), Investment.class);

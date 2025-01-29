@@ -51,6 +51,11 @@ public class NotificationService {
         return savedUser;
     }
 
+    public Property createProperty(@NotNull @Valid Property property) {
+        Property savedProperty = propertyRepository.save(property);
+        return savedProperty;
+    }
+
     public Investment createInvestment(@NotNull @Valid Investment investment, Long propertyId){
         Property property = propertyRepository.findById(propertyId).orElseThrow();
         investment.setProperty(property);

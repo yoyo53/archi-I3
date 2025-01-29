@@ -52,8 +52,16 @@ public class IncomeService {
         this.certificateRepository = certificateRepository;
     }
 
-    public Income getIncome(Long userId) {
-        return incomeRepository.findById(userId).orElse(null);
+    public Iterable<Income> getAllIncomes() {
+        return incomeRepository.findAll();
+    }
+
+    public Income getIncomeById(Long id) {
+        return incomeRepository.findById(id).orElse(null);
+    }
+
+    public Iterable<Income> getIncomesByUserId(Long userId) {
+        return incomeRepository.findByInvestment_UserId(userId);
     }
 
     public Property createProperty (Property property) {
@@ -104,9 +112,9 @@ public class IncomeService {
                 }
 
                 incomeRepository.save(income);
-                ObjectNode event = new ObjectMapper().createObjectNode();
+                ObjectNode event = objectMapper.createObjectNode();
                 event.put(EVENT_TYPE, "IncomeCreated");
-                ObjectNode payload = new ObjectMapper().convertValue(income, ObjectNode.class);
+                ObjectNode payload = objectMapper.convertValue(income, ObjectNode.class);
                 event.set(PAYLOAD, payload);
 
                 kafkaProducer.sendMessage(topic, event);

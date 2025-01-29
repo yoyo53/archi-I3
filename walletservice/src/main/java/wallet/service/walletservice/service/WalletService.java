@@ -31,6 +31,10 @@ public class WalletService {
         this.objectMapper = objectMapper;
     }
 
+    public Iterable<Wallet> getAllWallets() {
+        return walletRepository.findAll();
+    }
+
     public Wallet createWallet(Long userId) {
         if (!walletRepository.existsByUserId(userId)) {
 

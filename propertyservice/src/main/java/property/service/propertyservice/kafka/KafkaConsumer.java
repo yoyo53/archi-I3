@@ -41,7 +41,6 @@ public class KafkaConsumer {
                 case "UserCreated":
                     User user = objectMapper.convertValue(message.get(PAYLOAD), User.class);
                     if (user.getRole().equals(UserRole.AGENT.getDescription())) {
-                        logger.warn("Adding agent in database");
                         propertyService.createAgent(user);
                     }
                     break;
@@ -68,11 +67,10 @@ public class KafkaConsumer {
                     break;
 
                 default:
-                    logger.warn("Unknown event received");
                     break;
             }
         } catch (IOException e) {
-            logger.error("Error parsing message", e);
+            logger.error("Error consuming message", e);
         }
     }
 

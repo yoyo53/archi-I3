@@ -9,7 +9,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import user.service.userservice.kafka.KafkaProducer;
 import user.service.userservice.model.User;
-import user.service.userservice.model.User.UserRole;
 import user.service.userservice.repository.UserRepository;
 
 @Service

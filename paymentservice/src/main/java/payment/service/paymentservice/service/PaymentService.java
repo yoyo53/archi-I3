@@ -19,9 +19,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.TimeZone;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 @Service
 public class PaymentService {
     @Value("${spring.kafka.topic}")
@@ -34,8 +31,6 @@ public class PaymentService {
     private final String PAYLOAD = "Payload";
 
     private LocalDate systemDate;
-
-    private static final Logger logger = LoggerFactory.getLogger(PaymentService.class);
     
     @Value("${spring.application.timezone}")
     private String timeZone;
@@ -84,6 +79,10 @@ public class PaymentService {
         return paymentRepository.findById(id).get();
     }
 
+    public Iterable<Payment> getPaymentsByUser(Long userID){
+        return paymentRepository.findByUserID(userID);
+    }
+
     public Payment updatePaymentStatus(Long id, String status){
         Payment payment = paymentRepository.findById(id).orElseThrow();
         payment.setStatus(status);
@@ -106,7 +105,6 @@ public class PaymentService {
 
     private String getISOdate() {
         TimeZone tz = TimeZone.getTimeZone(timeZone);
-        logger.warn(timeZone);
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'"); // Quoted "Z" to indicate UTC, no timezone offset
         df.setTimeZone(tz);
         return df.format(new Date());

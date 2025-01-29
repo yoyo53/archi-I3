@@ -2,11 +2,8 @@ package property.service.propertyservice.controller;
 
 import java.net.URI;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,7 +23,6 @@ import property.service.propertyservice.service.PropertyService;
 public class PropertyController {
 
     private final PropertyService propertyService;
-    private final Logger logger = LoggerFactory.getLogger(PropertyController.class);
 
     @Autowired
     public PropertyController(PropertyService propertyService) {
@@ -45,44 +41,30 @@ public class PropertyController {
         }
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Object> deleteProperty(@PathVariable Long id, @RequestHeader("Authorization") Long userID) {
-        try {
-            Long deletedID = propertyService.deleteProperty(id, userID);
-            if (deletedID == null) {
-                return ResponseEntity.notFound().build();
-            }
-            return ResponseEntity.noContent().build();
-        } catch (Exception e) {
+    @GetMapping
+    public ResponseEntity<Object> getProperties() {
+        try{
+            return ResponseEntity.ok().body(propertyService.getProperties());
+        }catch(Exception e){
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
-    @GetMapping
-    public ResponseEntity<Iterable<Property>> getProperties() {
-        try{
-            return ResponseEntity.ok().body(propertyService.getProperties());
-        }catch(Exception e){
-            return ResponseEntity.badRequest().build();
-        }
-    }
-
     @GetMapping("/{id}")
-    public ResponseEntity<Property> getPropertyById(@PathVariable Long id) {
+    public ResponseEntity<Object> getPropertyById(@PathVariable Long id) {
         try{
             return ResponseEntity.ok().body(propertyService.getPropertyById(id));
         }catch(Exception e){
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
     @GetMapping("/open")
-    public ResponseEntity<Iterable<Property>> getOpenProperties() {
+    public ResponseEntity<Object> getOpenProperties() {
         try{
             return ResponseEntity.ok().body(propertyService.getOpenProperties());
         }catch(Exception e){
-            logger.error("Error getting open properties", e);
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
@@ -92,7 +74,6 @@ public class PropertyController {
             Property newProperty = propertyService.updateProperty(id, propertyDTO, userID);
             return ResponseEntity.ok().body(newProperty);
         } catch (Exception e) {
-            logger.error("Error getting open properties", e);
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }

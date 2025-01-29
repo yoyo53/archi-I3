@@ -1,7 +1,5 @@
 package investment.service.investmentservice.controller;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,45 +13,34 @@ import investment.service.investmentservice.dto.InvestmentDTO;
 public class InvestmentController {
 
     private final InvestmentService investmentService;
-    private static final Logger logger = LoggerFactory.getLogger(InvestmentController.class);
 
     @Autowired
     public InvestmentController(InvestmentService investmentService) {
         this.investmentService = investmentService;
     }
 
-    // @GetMapping("/test")
-    // public ResponseEntity<String> test() {
-    // return ResponseEntity.ok("test");
-    // }
     @GetMapping
-    public ResponseEntity<Iterable<Investment>> getInvestments() {
+    public ResponseEntity<Object> getInvestments() {
         try {
             Iterable<Investment> investments = investmentService.getInvestments();
             return ResponseEntity.ok(investments);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
     @PostMapping
     public ResponseEntity<Object> createInvestment(@RequestBody InvestmentDTO investmentDTO, @RequestHeader("Authorization") Long userID) {
         try {
-            System.out.println("Investment Details: ");
-            System.out.println("UserID: " + userID);
-            System.out.println("PropertyID: " + investmentDTO.getPropertyId());
-            System.out.println("AmountInvested: " + investmentDTO.getAmount());
-
             Investment result = investmentService.createInvestment(investmentDTO, userID);
             return ResponseEntity.ok(result);
         } catch (Exception e) {
-            logger.error("Error creating investment: ", e);
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Investment> getInvestment(@PathVariable Long id) {
+    public ResponseEntity<Object> getInvestment(@PathVariable Long id) {
         try {
             Investment investment = investmentService.getInvestment(id);
             if (investment == null) {
@@ -61,18 +48,18 @@ public class InvestmentController {
             }
             return ResponseEntity.ok(investment);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
-    @GetMapping("/myinvestment")
-    public ResponseEntity<Iterable<Investment>> getInvestmentsByUser(@RequestHeader("Authorization") Long userID) {
+    @GetMapping("/me")
+    public ResponseEntity<Object> getInvestmentsByUser(@RequestHeader("Authorization") Long userID) {
         try {
 
             Iterable<Investment> investments = investmentService.getInvestmentsByUser(userID);
             return ResponseEntity.ok(investments);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 }

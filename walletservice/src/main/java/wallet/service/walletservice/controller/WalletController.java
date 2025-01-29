@@ -24,6 +24,15 @@ public class WalletController {
         this.walletService = walletService;
     }
 
+    @GetMapping
+    public ResponseEntity<Object> getWallets() {
+        try {
+            return ResponseEntity.ok().body(walletService.getAllWallets());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
     @PostMapping("/deposit/{amount}")
     public ResponseEntity<String> deposit(@PathVariable Double amount ,@RequestHeader("Authorization") Long userID) {
         try {

@@ -8,4 +8,6 @@ import payment.service.paymentservice.model.Payment;
 @Repository
 public interface PaymentRepository extends JpaRepository<Payment, Long> {
     Iterable<Payment> findByDateBeforeAndStatus(String dateParametre, Payment.PaymentStatus statusParametre);
+
+    Iterable<Payment> findByUserID(Long userID);
 }

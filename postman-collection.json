@@ -1,150 +1,19 @@
 {
 	"info": {
-		"_postman_id": "f7a6b319-231a-4ac2-a6b0-3e7172145462",
+		"_postman_id": "6a701b2a-f90d-4a22-b0c7-a5f9b3175be9",
 		"name": "Projet Archi I3",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "25867990"
+		"_exporter_id": "24567893"
 	},
 	"item": [
-		{
-			"name": "Payments",
-			"item": [
-				{
-					"name": "createPayment",
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"method": "GET",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{ \r\n    \"email\": \"test@test.com\", \r\n    \"password\": \"mypassword\", \r\n    \"lastName\": \"Doe\",   \r\n    \"firstName\": \"John\" \r\n} \r\n",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "http://localhost:8080/users",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "8080",
-							"path": [
-								"users"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "getAllPayments",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "http://localhost:8085/api/payments",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "8085",
-							"path": [
-								"api",
-								"payments"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "getPaymentByID",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "http://localhost:8085/api/payments/1",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "8085",
-							"path": [
-								"api",
-								"payments",
-								"1"
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
 		{
 			"name": "Users",
 			"item": [
 				{
-					"name": "createUser",
+					"name": "register",
 					"request": {
 						"method": "POST",
 						"header": [
-							{
-								"key": "Cache-Control",
-								"value": "no-cache",
-								"name": "cache-control",
-								"type": "text"
-							},
-							{
-								"key": "Postman-Token",
-								"value": "<calculated when request is sent>",
-								"name": "postman-token",
-								"type": "text"
-							},
-							{
-								"key": "Content-Type",
-								"value": "text/plain",
-								"name": "content-type",
-								"type": "text"
-							},
-							{
-								"key": "Content-Length",
-								"value": "<calculated when request is sent>",
-								"name": "content-length",
-								"type": "text"
-							},
-							{
-								"key": "Host",
-								"value": "<calculated when request is sent>",
-								"name": "host",
-								"type": "text"
-							},
-							{
-								"key": "User-Agent",
-								"value": "PostmanRuntime/7.39.1",
-								"name": "user-agent",
-								"type": "text"
-							},
-							{
-								"key": "Accept",
-								"value": "*/*",
-								"name": "accept",
-								"type": "text"
-							},
-							{
-								"key": "Accept-Encoding",
-								"value": "gzip, deflate, br",
-								"name": "accept-encoding",
-								"type": "text"
-							},
-							{
-								"key": "Connection",
-								"value": "keep-alive",
-								"name": "connection",
-								"type": "text"
-							},
 							{
 								"key": "Content-Type",
 								"value": "application/json",
@@ -153,7 +22,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"email\":\"test2@email.com\",\r\n    \"password\":\"password\",\r\n    \"role\":\"AGENT\"\r\n}",
+							"raw": "{\r\n    \"email\":\"test1@email.com\",\r\n    \"password\":\"password\",\r\n    \"role\":\"AGENT\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "text"
@@ -161,7 +30,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8081/api/users/create",
+							"raw": "http://localhost:8081/api/users/register",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -170,7 +39,7 @@
 							"path": [
 								"api",
 								"users",
-								"create"
+								"register"
 							]
 						}
 					},
@@ -179,10 +48,35 @@
 				{
 					"name": "login",
 					"request": {
-						"method": "GET",
-						"header": [],
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"test1@email.com\",\n    \"password\": \"password\"\n}",
+							"options": {
+								"raw": {
+									"language": "text"
+								}
+							}
+						},
 						"url": {
-							"raw": ""
+							"raw": "http://localhost:8081/api/users/login",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"api",
+								"users",
+								"login"
+							]
 						}
 					},
 					"response": []
@@ -193,72 +87,59 @@
 			"name": "Properties",
 			"item": [
 				{
+					"name": "getAllProperties",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8082/api/properties",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8082",
+							"path": [
+								"api",
+								"properties"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getOpenProperties",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8082/api/properties/open",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8082",
+							"path": [
+								"api",
+								"properties",
+								"open"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "createProperty",
 					"request": {
 						"method": "POST",
 						"header": [
 							{
-								"key": "Cache-Control",
-								"value": "no-cache",
-								"name": "cache-control",
-								"type": "text"
-							},
-							{
-								"key": "Postman-Token",
-								"value": "<calculated when request is sent>",
-								"name": "postman-token",
-								"type": "text"
-							},
-							{
 								"key": "Content-Type",
-								"value": "text/plain",
-								"name": "content-type",
-								"type": "text"
-							},
-							{
-								"key": "Content-Length",
-								"value": "<calculated when request is sent>",
-								"name": "content-length",
-								"type": "text"
-							},
-							{
-								"key": "Host",
-								"value": "<calculated when request is sent>",
-								"name": "host",
-								"type": "text"
-							},
-							{
-								"key": "User-Agent",
-								"value": "PostmanRuntime/7.39.1",
-								"name": "user-agent",
-								"type": "text"
-							},
-							{
-								"key": "Accept",
-								"value": "*/*",
-								"name": "accept",
-								"type": "text"
-							},
-							{
-								"key": "Accept-Encoding",
-								"value": "gzip, deflate, br",
-								"name": "accept-encoding",
-								"type": "text"
-							},
-							{
-								"key": "Connection",
-								"value": "keep-alive",
-								"name": "connection",
+								"value": "application/json",
 								"type": "text"
 							},
 							{
 								"key": "Authorization",
-								"value": "3",
-								"type": "text"
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json",
+								"value": "2",
 								"type": "text"
 							}
 						],
@@ -287,66 +168,32 @@
 					"response": []
 				},
 				{
-					"name": "deleteProperty",
+					"name": "updateProperty",
 					"request": {
-						"method": "DELETE",
+						"method": "PUT",
 						"header": [
 							{
-								"key": "Cache-Control",
-								"value": "no-cache",
-								"name": "cache-control",
-								"type": "text"
-							},
-							{
-								"key": "Postman-Token",
-								"value": "<calculated when request is sent>",
-								"name": "postman-token",
-								"type": "text"
-							},
-							{
-								"key": "Host",
-								"value": "<calculated when request is sent>",
-								"name": "host",
-								"type": "text"
-							},
-							{
-								"key": "User-Agent",
-								"value": "PostmanRuntime/7.39.1",
-								"name": "user-agent",
-								"type": "text"
-							},
-							{
-								"key": "Accept",
-								"value": "*/*",
-								"name": "accept",
-								"type": "text"
-							},
-							{
-								"key": "Accept-Encoding",
-								"value": "gzip, deflate, br",
-								"name": "accept-encoding",
-								"type": "text"
-							},
-							{
-								"key": "Connection",
-								"value": "keep-alive",
-								"name": "connection",
-								"type": "text"
-							},
-							{
 								"key": "Authorization",
-								"value": "13",
+								"value": "2",
 								"type": "text"
 							},
 							{
-								"key": "",
-								"value": "",
-								"type": "text",
-								"disabled": true
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
 							}
 						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"status\": \"OPENED\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "text"
+								}
+							}
+						},
 						"url": {
-							"raw": "http://localhost:8082/api/properties/3",
+							"raw": "http://localhost:8082/api/properties/:propertyId",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -355,27 +202,14 @@
 							"path": [
 								"api",
 								"properties",
-								"3"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "getAllProperties",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "http://localhost:8082/api/properties",
-							"protocol": "http",
-							"host": [
-								"localhost"
+								":propertyId"
 							],
-							"port": "8082",
-							"path": [
-								"api",
-								"properties"
+							"variable": [
+								{
+									"key": "propertyId",
+									"value": "1",
+									"type": "string"
+								}
 							]
 						}
 					},
@@ -387,7 +221,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:8082/api/properties/11",
+							"raw": "http://localhost:8082/api/properties/:propertyId",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -396,71 +230,76 @@
 							"path": [
 								"api",
 								"properties",
-								"11"
+								":propertyId"
+							],
+							"variable": [
+								{
+									"key": "propertyId",
+									"value": "1",
+									"type": "string"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Investments",
+			"item": [
+				{
+					"name": "getAllInvestments",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8083/api/investments",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8083",
+							"path": [
+								"api",
+								"investments"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "updateProperty",
+					"name": "getMyInvestments",
 					"request": {
-						"method": "PUT",
+						"method": "GET",
 						"header": [
 							{
-								"key": "Cache-Control",
-								"value": "no-cache",
-								"name": "cache-control",
+								"key": "Authorization",
+								"value": "5",
 								"type": "text"
-							},
-							{
-								"key": "Postman-Token",
-								"value": "<calculated when request is sent>",
-								"name": "postman-token",
-								"type": "text"
-							},
-							{
-								"key": "Content-Type",
-								"value": "text/plain",
-								"name": "content-type",
-								"type": "text"
-							},
-							{
-								"key": "Content-Length",
-								"value": "<calculated when request is sent>",
-								"name": "content-length",
-								"type": "text"
-							},
-							{
-								"key": "Host",
-								"value": "<calculated when request is sent>",
-								"name": "host",
-								"type": "text"
-							},
-							{
-								"key": "User-Agent",
-								"value": "PostmanRuntime/7.39.1",
-								"name": "user-agent",
-								"type": "text"
-							},
-							{
-								"key": "Accept",
-								"value": "*/*",
-								"name": "accept",
-								"type": "text"
-							},
-							{
-								"key": "Accept-Encoding",
-								"value": "gzip, deflate, br",
-								"name": "accept-encoding",
-								"type": "text"
-							},
-							{
-								"key": "Connection",
-								"value": "keep-alive",
-								"name": "connection",
-								"type": "text"
-							},
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8083/api/investments/me",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8083",
+							"path": [
+								"api",
+								"investments",
+								"me"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "createInvestment",
+					"request": {
+						"method": "POST",
+						"header": [
 							{
 								"key": "Authorization",
 								"value": "1",
@@ -474,148 +313,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n        \"status\": \"OPENED\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "text"
-								}
-							}
-						},
-						"url": {
-							"raw": "http://localhost:8082/api/properties/11",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "8082",
-							"path": [
-								"api",
-								"properties",
-								"11"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "getOpenProperties",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "http://localhost:8082/api/properties/open",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "8082",
-							"path": [
-								"api",
-								"properties",
-								"open"
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "Investments",
-			"item": [
-				{
-					"name": "getInvestments",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "http://localhost:8083/api/investments",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "8083",
-							"path": [
-								"api",
-								"investments"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "createInvestment",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Cache-Control",
-								"value": "no-cache",
-								"name": "cache-control",
-								"type": "text"
-							},
-							{
-								"key": "Postman-Token",
-								"value": "<calculated when request is sent>",
-								"name": "postman-token",
-								"type": "text"
-							},
-							{
-								"key": "Content-Type",
-								"value": "text/plain",
-								"name": "content-type",
-								"type": "text"
-							},
-							{
-								"key": "Content-Length",
-								"value": "<calculated when request is sent>",
-								"name": "content-length",
-								"type": "text"
-							},
-							{
-								"key": "Host",
-								"value": "<calculated when request is sent>",
-								"name": "host",
-								"type": "text"
-							},
-							{
-								"key": "User-Agent",
-								"value": "PostmanRuntime/7.39.1",
-								"name": "user-agent",
-								"type": "text"
-							},
-							{
-								"key": "Accept",
-								"value": "*/*",
-								"name": "accept",
-								"type": "text"
-							},
-							{
-								"key": "Accept-Encoding",
-								"value": "gzip, deflate, br",
-								"name": "accept-encoding",
-								"type": "text"
-							},
-							{
-								"key": "Connection",
-								"value": "keep-alive",
-								"name": "connection",
-								"type": "text"
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"type": "text"
-							},
-							{
-								"key": "Authorization",
-								"value": "2",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"propertyId\": 12,\r\n    \"amount\": 600.0\r\n}",
+							"raw": "{\r\n    \"propertyId\": 1,\r\n    \"amount\": 500000.0\r\n}",
 							"options": {
 								"raw": {
 									"language": "text"
@@ -632,6 +330,34 @@
 							"path": [
 								"api",
 								"investments"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getInvestmentById",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8083/api/investments/:investmentId",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8083",
+							"path": [
+								"api",
+								"investments",
+								":investmentId"
+							],
+							"variable": [
+								{
+									"key": "investmentId",
+									"value": "1",
+									"type": "string"
+								}
 							]
 						}
 					},
@@ -643,52 +369,30 @@
 			"name": "Wallets",
 			"item": [
 				{
+					"name": "getAllWallets",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8084/api/wallets",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8084",
+							"path": [
+								"api",
+								"wallets"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "getMyWallet",
 					"request": {
 						"method": "GET",
 						"header": [
-							{
-								"key": "Cache-Control",
-								"value": "no-cache",
-								"name": "cache-control",
-								"type": "text"
-							},
-							{
-								"key": "Postman-Token",
-								"value": "<calculated when request is sent>",
-								"name": "postman-token",
-								"type": "text"
-							},
-							{
-								"key": "Host",
-								"value": "<calculated when request is sent>",
-								"name": "host",
-								"type": "text"
-							},
-							{
-								"key": "User-Agent",
-								"value": "PostmanRuntime/7.39.1",
-								"name": "user-agent",
-								"type": "text"
-							},
-							{
-								"key": "Accept",
-								"value": "*/*",
-								"name": "accept",
-								"type": "text"
-							},
-							{
-								"key": "Accept-Encoding",
-								"value": "gzip, deflate, br",
-								"name": "accept-encoding",
-								"type": "text"
-							},
-							{
-								"key": "Connection",
-								"value": "keep-alive",
-								"name": "connection",
-								"type": "text"
-							},
 							{
 								"key": "Authorization",
 								"value": "1",
@@ -717,61 +421,13 @@
 						"method": "POST",
 						"header": [
 							{
-								"key": "Cache-Control",
-								"value": "no-cache",
-								"name": "cache-control",
-								"type": "text"
-							},
-							{
-								"key": "Postman-Token",
-								"value": "<calculated when request is sent>",
-								"name": "postman-token",
-								"type": "text"
-							},
-							{
-								"key": "Content-Length",
-								"value": "0",
-								"name": "content-length",
-								"type": "text"
-							},
-							{
-								"key": "Host",
-								"value": "<calculated when request is sent>",
-								"name": "host",
-								"type": "text"
-							},
-							{
-								"key": "User-Agent",
-								"value": "PostmanRuntime/7.39.1",
-								"name": "user-agent",
-								"type": "text"
-							},
-							{
-								"key": "Accept",
-								"value": "*/*",
-								"name": "accept",
-								"type": "text"
-							},
-							{
-								"key": "Accept-Encoding",
-								"value": "gzip, deflate, br",
-								"name": "accept-encoding",
-								"type": "text"
-							},
-							{
-								"key": "Connection",
-								"value": "keep-alive",
-								"name": "connection",
-								"type": "text"
-							},
-							{
 								"key": "Authorization",
 								"value": "1",
 								"type": "text"
 							}
 						],
 						"url": {
-							"raw": "http://localhost:8084/api/wallets/deposit/500",
+							"raw": "http://localhost:8084/api/wallets/deposit/:amount",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -781,7 +437,14 @@
 								"api",
 								"wallets",
 								"deposit",
-								"500"
+								":amount"
+							],
+							"variable": [
+								{
+									"key": "amount",
+									"value": "500",
+									"type": "string"
+								}
 							]
 						}
 					},
@@ -793,61 +456,13 @@
 						"method": "POST",
 						"header": [
 							{
-								"key": "Cache-Control",
-								"value": "no-cache",
-								"name": "cache-control",
-								"type": "text"
-							},
-							{
-								"key": "Postman-Token",
-								"value": "<calculated when request is sent>",
-								"name": "postman-token",
-								"type": "text"
-							},
-							{
-								"key": "Content-Length",
-								"value": "0",
-								"name": "content-length",
-								"type": "text"
-							},
-							{
-								"key": "Host",
-								"value": "<calculated when request is sent>",
-								"name": "host",
-								"type": "text"
-							},
-							{
-								"key": "User-Agent",
-								"value": "PostmanRuntime/7.39.1",
-								"name": "user-agent",
-								"type": "text"
-							},
-							{
-								"key": "Accept",
-								"value": "*/*",
-								"name": "accept",
-								"type": "text"
-							},
-							{
-								"key": "Accept-Encoding",
-								"value": "gzip, deflate, br",
-								"name": "accept-encoding",
-								"type": "text"
-							},
-							{
-								"key": "Connection",
-								"value": "keep-alive",
-								"name": "connection",
-								"type": "text"
-							},
-							{
 								"key": "Authorization",
-								"value": "5",
+								"value": "1",
 								"type": "text"
 							}
 						],
 						"url": {
-							"raw": "http://localhost:8084/api/wallets/withdraw/200",
+							"raw": "http://localhost:8084/api/wallets/withdraw/:amount",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -857,7 +472,389 @@
 								"api",
 								"wallets",
 								"withdraw",
-								"200"
+								":amount"
+							],
+							"variable": [
+								{
+									"key": "amount",
+									"value": "500",
+									"type": "string"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Payments",
+			"item": [
+				{
+					"name": "getAllPayments",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8085/api/payments",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8085",
+							"path": [
+								"api",
+								"payments"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getMyPayments",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "5",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8085/api/payments/me",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8085",
+							"path": [
+								"api",
+								"payments",
+								"me"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getPaymentByID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8085/api/payments/:paymentId",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8085",
+							"path": [
+								"api",
+								"payments",
+								":paymentId"
+							],
+							"variable": [
+								{
+									"key": "paymentId",
+									"value": "1",
+									"type": "string"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Certificates",
+			"item": [
+				{
+					"name": "getAllCertificates",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8087/api/certificates",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8087",
+							"path": [
+								"api",
+								"certificates"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getMyCertificates",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "1",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8087/api/certificates/me",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8087",
+							"path": [
+								"api",
+								"certificates",
+								"me"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getCertificatesByPropertyID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8087/api/certificates/property/:propertyId",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8087",
+							"path": [
+								"api",
+								"certificates",
+								"property",
+								":propertyId"
+							],
+							"variable": [
+								{
+									"key": "propertyId",
+									"value": "1",
+									"type": "string"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getCertificateByInvestmentID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8087/api/certificates/investment/:InvestmentId",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8087",
+							"path": [
+								"api",
+								"certificates",
+								"investment",
+								":InvestmentId"
+							],
+							"variable": [
+								{
+									"key": "InvestmentId",
+									"value": "1",
+									"type": "string"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getCertificateByID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8087/api/certificates/:certificateId",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8087",
+							"path": [
+								"api",
+								"certificates",
+								":certificateId"
+							],
+							"variable": [
+								{
+									"key": "certificateId",
+									"value": "1",
+									"type": "string"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Income",
+			"item": [
+				{
+					"name": "getAllIncomes",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8088/api/incomes",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8088",
+							"path": [
+								"api",
+								"incomes"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getMyIncomes",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8088/api/incomes/me",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8088",
+							"path": [
+								"api",
+								"incomes",
+								"me"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getIncomeById",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8088/api/incomes/:incomeId",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8088",
+							"path": [
+								"api",
+								"incomes",
+								":incomeId"
+							],
+							"variable": [
+								{
+									"key": "incomeId",
+									"value": "1",
+									"type": "string"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Time",
+			"item": [
+				{
+					"name": "getDate",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8089/api/time",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8089",
+							"path": [
+								"api",
+								"time"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "skipDays",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8089/api/time/add/:nbDays",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8089",
+							"path": [
+								"api",
+								"time",
+								"add",
+								":nbDays"
+							],
+							"variable": [
+								{
+									"key": "nbDays",
+									"value": "30",
+									"type": "string"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "setDate",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8089/api/time/set/:date",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8089",
+							"path": [
+								"api",
+								"time",
+								"set",
+								":date"
+							],
+							"variable": [
+								{
+									"key": "date",
+									"value": "2025-02-03",
+									"type": "string"
+								}
 							]
 						}
 					},
