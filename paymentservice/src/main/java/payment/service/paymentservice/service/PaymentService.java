@@ -110,5 +110,21 @@ public class PaymentService {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         LocalDate newDate = LocalDate.parse(date, formatter);
         this.systemDate = newDate;
+        String previousDate = systemDate.minusDays(1).format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+
+        // Check if there are certificates with the new date and send a message
+        Iterable<Payment> payments = paymentRepository.findByDateBeforeAndStatus(previousDate, PaymentStatus.PENDING);
+        for (Payment payment : payments) {
+            // if (certificate.getEmissionDate().equals(date)) {
+                // Send a message to the Kafka topic
+                ObjectNode payload = new ObjectMapper().convertValue(payment, ObjectNode.class);
+                ObjectNode event = new ObjectMapper().createObjectNode()
+                        .put(EVENT_TYPE, "PaymentSuppressed")
+                        .set(PAYLOAD, payload);
+
+                paymentRepository.delete(payment);
+                kafkaProducer.sendMessage(topic, event);
+            // }
+        }
     }
 }
